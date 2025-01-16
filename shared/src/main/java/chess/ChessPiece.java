@@ -109,6 +109,32 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return new ArrayList<>();
+        ChessPiece newPiece = new ChessPiece(board.getPiece(myPosition).pieceColor, board.getPiece(myPosition).type);
+        return switch (newPiece.type) {
+            case KING -> {
+                KingMovesCalculator kingCalculator = new KingMovesCalculator();
+                yield kingCalculator.pieceMoves(board, myPosition);
+            }
+            case QUEEN -> {
+                QueenMovesCalculator queenCalculator = new QueenMovesCalculator();
+                yield queenCalculator.pieceMoves(board, myPosition);
+            }
+            case ROOK -> {
+                RookMovesCalculator rookCalculator = new RookMovesCalculator();
+                yield rookCalculator.pieceMoves(board, myPosition);
+            }
+            case KNIGHT -> {
+                KnightMovesCalculator knightCalculator = new KnightMovesCalculator();
+                yield knightCalculator.pieceMoves(board, myPosition);
+            }
+            case BISHOP -> {
+                BishopMovesCalculator bishopCalculator = new BishopMovesCalculator();
+                yield bishopCalculator.pieceMoves(board, myPosition);
+            }
+            case PAWN -> {
+                PawnMovesCalculator pawnCalculator = new PawnMovesCalculator();
+                yield pawnCalculator.pieceMoves(board, myPosition);
+            }
+        };
     }
 }
