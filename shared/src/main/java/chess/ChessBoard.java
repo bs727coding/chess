@@ -14,7 +14,14 @@ public class ChessBoard {
     }
 
     public String toString() {
-        throw new RuntimeException("Not Implemented");
+        StringBuilder board = new StringBuilder();
+        for (int i = 7; i >= 0; i--) {
+            board.append("|").append(this.boardArray[i][0]).append("|").append(this.boardArray[i][1]).
+                    append("|").append(this.boardArray[i][2]).append("|").append(this.boardArray[i][3]).
+                    append("|").append(this.boardArray[i][4]).append("|").append(this.boardArray[i][5]).
+                    append("|").append(this.boardArray[i][6]).append("|").append(this.boardArray[i][7]).append("|\n");
+        }
+        return board.toString();
     }
 
     public boolean equals(Object board2) {
