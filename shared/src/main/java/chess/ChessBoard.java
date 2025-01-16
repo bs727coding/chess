@@ -47,8 +47,7 @@ public class ChessBoard {
                     return false;
                 } else if (this.boardArray[i][j] == null && that.boardArray[i][j] == null) {
                     continue;
-                }
-                else if (!(this.boardArray[i][j].equals(that.boardArray[i][j]))) {
+                } else if (!(this.boardArray[i][j].equals(that.boardArray[i][j]))) {
                         return false;
                 }
             }
