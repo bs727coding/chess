@@ -11,7 +11,7 @@ public class KingMovesCalculator implements PieceMovesCalculator {
         final int c = myPosition.getColumn();
         final ChessPosition originalPosition = new ChessPosition(r, c);
         Collection<ChessMove> moveList = new ArrayList<>();
-        ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
+        final ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
         int i, j;
         i = r + 1;
         j = c + 1;

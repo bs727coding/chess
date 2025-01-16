@@ -10,7 +10,7 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         final int c = myPosition.getColumn();
         final ChessPosition originalPosition = new ChessPosition(r, c);
         Collection<ChessMove> moveList = new ArrayList<>();
-        ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
+        final ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
         int i, j;
         for (i = r + 1, j = c + 1; i < 9 && j < 9; i++, j++) {
             ChessPosition newPosition = new ChessPosition(i, j);

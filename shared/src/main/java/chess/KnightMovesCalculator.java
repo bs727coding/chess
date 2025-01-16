@@ -10,7 +10,7 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         final int c = myPosition.getColumn();
         final ChessPosition originalPosition = new ChessPosition(r, c);
         Collection<ChessMove> moveList = new ArrayList<>();
-        ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
+        final ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
         int i = r + 1;
         int j = c + 2;
         if (i < 9 && j < 9) {
