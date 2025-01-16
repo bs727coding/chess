@@ -2,6 +2,7 @@ package passoff.chess.piece;
 
 import chess.ChessPosition;
 import org.junit.jupiter.api.Test;
+//import static passoff.chess.TestUtilities.validateMoves;
 import passoff.chess.TestUtilities;
 
 public class BishopMoveTests {
