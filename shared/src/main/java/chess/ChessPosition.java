@@ -10,6 +10,7 @@ public class ChessPosition {
 
     private int row;
     private int col;
+
     public ChessPosition(int row, int col) {
         if (row < 1 || col < 1 || row > 8 || col > 8) {
             throw new RuntimeException("Error: invalid row or column on constructing");
