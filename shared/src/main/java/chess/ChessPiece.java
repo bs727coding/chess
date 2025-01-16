@@ -29,6 +29,50 @@ public class ChessPiece {
         PAWN
     }
 
+    public String toString() {
+        if (this.pieceColor == ChessGame.TeamColor.BLACK) {
+            if (this.type == PieceType.ROOK) {
+                return "r";
+            }
+            if (this.type == PieceType.KNIGHT) {
+                return "n";
+            }
+            if (this.type == PieceType.BISHOP) {
+                return "b";
+            }
+            if (this.type == PieceType.QUEEN) {
+                return "q";
+            }
+            if (this.type == PieceType.KING) {
+                return "k";
+            }
+            if (this.type == PieceType.PAWN) {
+                return "p";
+            }
+        }
+        if (this.pieceColor == ChessGame.TeamColor.WHITE) {
+            if (this.type == PieceType.ROOK) {
+                return "R";
+            }
+            if (this.type == PieceType.KNIGHT) {
+                return "N";
+            }
+            if (this.type == PieceType.BISHOP) {
+                return "B";
+            }
+            if (this.type == PieceType.QUEEN) {
+                return "Q";
+            }
+            if (this.type == PieceType.KING) {
+                return "K";
+            }
+            if (this.type == PieceType.PAWN) {
+                return "P";
+            }
+        }
+        return "How did you get here? Your piece does not have a color.";
+    }
+
     /**
      * @return Which team this chess piece belongs to
      */
