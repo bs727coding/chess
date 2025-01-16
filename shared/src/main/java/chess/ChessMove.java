@@ -38,12 +38,23 @@ public class ChessMove {
             return false;
         }
         ChessMove that = (ChessMove) move;
-        return this.startPosition == that.startPosition && this.endPosition == that.endPosition
-                && this.promotionPiece == that.promotionPiece;
+        if (this.promotionPiece == null && that.promotionPiece == null) {
+            return this.startPosition.equals(that.startPosition) && this.endPosition.equals(that.endPosition);
+        }
+        else if (this.promotionPiece == null ^ that.promotionPiece == null) {
+            return false;
+        } else {
+            return this.startPosition.equals(that.startPosition) && this.endPosition.equals(that.endPosition)
+                    && this.promotionPiece.equals(that.promotionPiece);
+        }
     }
 
     public int hashCode() {
-        return this.startPosition.getRow() + 5 + 6 * this.endPosition.getColumn() + this.promotionPiece.hashCode() * 2;
+        int value = (this.startPosition.getRow() * 20) + (this.endPosition.getColumn() * 2) + (this.startPosition.getColumn() * 34) + (this.endPosition.getRow() * 23);
+        if (this.promotionPiece != null) {
+            value += this.promotionPiece.hashCode();
+        }
+        return value;
     }
 
     /**

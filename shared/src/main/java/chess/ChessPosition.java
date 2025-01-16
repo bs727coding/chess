@@ -19,6 +19,7 @@ public class ChessPosition {
         this.col = col;
     }
 
+    @Override
     public boolean equals(Object cp) {
         if (this == cp) {
             return true;
@@ -30,11 +31,11 @@ public class ChessPosition {
             return false;
         }
         ChessPosition that = (ChessPosition) cp;
-        return this.row == that.row && this.col == that.col;
+        return (this.row == that.row) && (this.col == that.col);
     }
 
     public int hashCode() {
-        return 93 + row + col + (row * col);
+        return 93 + (2 * row) + col + (row * col);
     }
 
     public String toString() {

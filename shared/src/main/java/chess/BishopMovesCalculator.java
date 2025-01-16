@@ -12,48 +12,48 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         Collection<ChessMove> moveList = new ArrayList<>();
         ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
         int i, j;
-        for (i = r + 1, j = c + 1; i < 8 && j < 8; i++, j++) {
-            myPosition.setPosition(i, j);
-            if (board.getPiece(myPosition).getTeamColor() == color) {
-                break;
-            } else if (board.getPiece(myPosition).getTeamColor() != null) {
-                moveList.add(new ChessMove(originalPosition, myPosition, null));
+        for (i = r + 1, j = c + 1; i < 9 && j < 9; i++, j++) {
+            ChessPosition newPosition = new ChessPosition(i, j);
+            if (board.getPiece(newPosition) != null) {
+                if (board.getPiece(newPosition).getTeamColor() != color) {
+                    moveList.add(new ChessMove(originalPosition, newPosition, null));
+                }
                 break;
             } else {
-                moveList.add(new ChessMove(originalPosition, myPosition, null));
+                moveList.add(new ChessMove(originalPosition, newPosition, null));
             }
         }
-        for (i = r + 1, j = c - 1; i < 8 && j >= 0; i++, j--) {
-            myPosition.setPosition(i,j);
-            if (board.getPiece(myPosition).getTeamColor() == color) {
-                break;
-            } else if (board.getPiece(myPosition).getTeamColor() != null) {
-                moveList.add(new ChessMove(originalPosition, myPosition, null));
+        for (i = r + 1, j = c - 1; i < 9 && j > 0; i++, j--) {
+            ChessPosition newPosition = new ChessPosition(i, j);
+            if (board.getPiece(newPosition) != null) {
+                if (board.getPiece(newPosition).getTeamColor() != color) {
+                    moveList.add(new ChessMove(originalPosition, newPosition, null));
+                }
                 break;
             } else {
-                moveList.add(new ChessMove(originalPosition, myPosition, null));
+                moveList.add(new ChessMove(originalPosition, newPosition, null));
             }
         }
-        for (i = r - 1, j = c + 1; i >= 0 && j < 8; i--, j++) {
-            myPosition.setPosition(i,j);
-            if (board.getPiece(myPosition).getTeamColor() == color) {
-                break;
-            } else if (board.getPiece(myPosition).getTeamColor() != null) {
-                moveList.add(new ChessMove(originalPosition, myPosition, null));
+        for (i = r - 1, j = c + 1; i > 0 && j < 9; i--, j++) {
+            ChessPosition newPosition = new ChessPosition(i, j);
+            if (board.getPiece(newPosition) != null) {
+                if (board.getPiece(newPosition).getTeamColor() != color) {
+                    moveList.add(new ChessMove(originalPosition, newPosition, null));
+                }
                 break;
             } else {
-                moveList.add(new ChessMove(originalPosition, myPosition, null));
+                moveList.add(new ChessMove(originalPosition, newPosition, null));
             }
         }
-        for (i = r - 1, j = c - 1; i >= 0 && j >= 0; i--, j--) {
-            myPosition.setPosition(i,j);
-            if (board.getPiece(myPosition).getTeamColor() == color) {
-                break;
-            } else if (board.getPiece(myPosition).getTeamColor() != null) {
-                moveList.add(new ChessMove(originalPosition, myPosition, null));
+        for (i = r - 1, j = c - 1; i > 0 && j > 0; i--, j--) {
+            ChessPosition newPosition = new ChessPosition(i, j);
+            if (board.getPiece(newPosition) != null) {
+                if (board.getPiece(newPosition).getTeamColor() != color) {
+                    moveList.add(new ChessMove(originalPosition, newPosition, null));
+                }
                 break;
             } else {
-                moveList.add(new ChessMove(originalPosition, myPosition, null));
+                moveList.add(new ChessMove(originalPosition, newPosition, null));
             }
         }
         return moveList;

@@ -43,7 +43,12 @@ public class ChessBoard {
         ChessBoard that = (ChessBoard) board2;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-                if (this.boardArray[i][j] != that.boardArray[i][j]) {
+                if (this.boardArray[i][j] == null ^ that.boardArray[i][j] == null) {
+                    return false;
+                } else if (this.boardArray[i][j] == null && that.boardArray[i][j] == null) {
+                    continue;
+                }
+                else if (!(this.boardArray[i][j].equals(that.boardArray[i][j]))) {
                         return false;
                 }
             }
@@ -58,7 +63,7 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        boardArray[position.getRow()][position.getColumn()] = piece;
+        boardArray[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
 
     /**
@@ -69,7 +74,7 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return boardArray[position.getRow()][position.getColumn()];
+        return boardArray[position.getRow() - 1][position.getColumn() - 1];
     }
 
     /**
