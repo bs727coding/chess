@@ -19,6 +19,33 @@ public class ChessMove {
         this.promotionPiece = promotionPiece;
     }
 
+    public String toString() {
+        String move = this.startPosition + ", " + this.endPosition;
+        if (this.promotionPiece != null) {
+            move += ". Promotion piece: " + this.promotionPiece + ".";
+        }
+        return move;
+    }
+
+    public boolean equals(Object move) {
+        if (this == move) {
+            return true;
+        }
+        if (move == null) {
+            return false;
+        }
+        if (this.getClass() != move.getClass()) {
+            return false;
+        }
+        ChessMove that = (ChessMove) move;
+        return this.startPosition == that.startPosition && this.endPosition == that.endPosition
+                && this.promotionPiece == that.promotionPiece;
+    }
+
+    public int hashCode() {
+        return this.startPosition.getRow() + 5 + 6 * this.endPosition.getColumn() + this.promotionPiece.hashCode() * 2;
+    }
+
     /**
      * @return ChessPosition of starting location
      */
