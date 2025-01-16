@@ -32,44 +32,24 @@ public class ChessPiece {
 
     public String toString() {
         if (this.pieceColor == ChessGame.TeamColor.BLACK) {
-            if (this.type == PieceType.ROOK) {
-                return "r";
-            }
-            if (this.type == PieceType.KNIGHT) {
-                return "n";
-            }
-            if (this.type == PieceType.BISHOP) {
-                return "b";
-            }
-            if (this.type == PieceType.QUEEN) {
-                return "q";
-            }
-            if (this.type == PieceType.KING) {
-                return "k";
-            }
-            if (this.type == PieceType.PAWN) {
-                return "p";
-            }
+            return switch (this.type) {
+                case PieceType.ROOK -> "r";
+                case PieceType.KING -> "k";
+                case PieceType.BISHOP -> "b";
+                case PieceType.KNIGHT -> "n";
+                case PieceType.PAWN -> "p";
+                case PieceType.QUEEN -> "q";
+            };
         }
         if (this.pieceColor == ChessGame.TeamColor.WHITE) {
-            if (this.type == PieceType.ROOK) {
-                return "R";
-            }
-            if (this.type == PieceType.KNIGHT) {
-                return "N";
-            }
-            if (this.type == PieceType.BISHOP) {
-                return "B";
-            }
-            if (this.type == PieceType.QUEEN) {
-                return "Q";
-            }
-            if (this.type == PieceType.KING) {
-                return "K";
-            }
-            if (this.type == PieceType.PAWN) {
-                return "P";
-            }
+            return switch (this.type) {
+                case PieceType.ROOK -> "R";
+                case PieceType.KING -> "K";
+                case PieceType.BISHOP -> "B";
+                case PieceType.KNIGHT -> "N";
+                case PieceType.PAWN -> "P";
+                case PieceType.QUEEN -> "Q";
+            };
         }
         return "How did you get here? Your piece does not have a color.";
     }
