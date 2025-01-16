@@ -11,6 +11,9 @@ public class ChessPosition {
     private int row;
     private int col;
     public ChessPosition(int row, int col) {
+        if (row < 1 || col < 1 || row > 8 || col > 8) {
+            throw new RuntimeException("Error: invalid row or column on constructing");
+        }
         this.row = row;
         this.col = col;
     }
@@ -43,6 +46,15 @@ public class ChessPosition {
      */
     public int getRow() {
         return row;
+    }
+    public void setPosition(int inputRow, int inputCol) {
+        if (inputRow < 1 || inputCol < 1 || inputRow > 8 || inputCol > 8) {
+            throw new RuntimeException("Error: invalid row or column");
+        }
+        else {
+            this.row = inputRow;
+            this.col = inputCol;
+        }
     }
 
     /**

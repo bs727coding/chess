@@ -72,6 +72,19 @@ public class ChessPiece {
         }
         return "How did you get here? Your piece does not have a color.";
     }
+    public boolean equals(Object piece) {
+        if (this == piece) {
+            return true;
+        }
+        if (piece == null) {
+            return false;
+        }
+        if (this.getClass() != piece.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) piece;
+        return this.type == that.type && this.pieceColor == that.pieceColor;
+    }
 
     /**
      * @return Which team this chess piece belongs to
