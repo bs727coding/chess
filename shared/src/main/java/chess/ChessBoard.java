@@ -10,7 +10,7 @@ import java.util.Arrays;
  */
 public class ChessBoard {
 
-    private ChessPiece[][] boardArray = new ChessPiece[8][8];
+    private final ChessPiece[][] boardArray = new ChessPiece[8][8];
 
     public ChessBoard() {
     }

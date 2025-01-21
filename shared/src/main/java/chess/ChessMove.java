@@ -8,9 +8,9 @@ package chess;
  */
 public class ChessMove {
 
-    private ChessPosition startPosition;
-    private ChessPosition endPosition;
-    private ChessPiece.PieceType promotionPiece;
+    private final ChessPosition startPosition;
+    private final ChessPosition endPosition;
+    private final ChessPiece.PieceType promotionPiece;
 
     public ChessMove(ChessPosition startPosition, ChessPosition endPosition,
                      ChessPiece.PieceType promotionPiece) {
@@ -50,9 +50,9 @@ public class ChessMove {
     }
 
     public int hashCode() {
-        int value = (this.startPosition.getRow() * 20) + (this.endPosition.getColumn() * 2) + (this.startPosition.getColumn() * 34) + (this.endPosition.getRow() * 23);
+        int value = this.startPosition.hashCode() * 31 + this.endPosition.hashCode();
         if (this.promotionPiece != null) {
-            value += this.promotionPiece.hashCode();
+            value = value * 31 + this.promotionPiece.hashCode();
         }
         return value;
     }

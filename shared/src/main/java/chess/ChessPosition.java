@@ -8,8 +8,8 @@ package chess;
  */
 public class ChessPosition {
 
-    private int row;
-    private int col;
+    private final int row;
+    private final int col;
 
     public ChessPosition(int row, int col) {
         if (row < 1 || col < 1 || row > 8 || col > 8) {
@@ -35,7 +35,7 @@ public class ChessPosition {
     }
 
     public int hashCode() {
-        return 93 + (2 * row) + col + (row * col);
+        return row + 31 * col;
     }
 
     public String toString() {
@@ -48,15 +48,6 @@ public class ChessPosition {
      */
     public int getRow() {
         return row;
-    }
-    public void setPosition(int inputRow, int inputCol) {
-        if (inputRow < 1 || inputCol < 1 || inputRow > 8 || inputCol > 8) {
-            throw new RuntimeException("Error: invalid row or column");
-        }
-        else {
-            this.row = inputRow;
-            this.col = inputCol;
-        }
     }
 
     /**
