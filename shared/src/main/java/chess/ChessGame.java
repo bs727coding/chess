@@ -129,7 +129,8 @@ public class ChessGame {
                 ChessPosition opposingPosition = new ChessPosition(i, j);
                 if (board.getPiece(opposingPosition) != null &&
                         board.getPiece(opposingPosition).getTeamColor() == opposingColor) {
-                    Collection<ChessMove> opposingMoves = validMoves(opposingPosition);
+                    ChessPiece opposingPiece = board.getPiece(opposingPosition);
+                    Collection<ChessMove> opposingMoves = opposingPiece.pieceMoves(board, opposingPosition);
                     if (opposingMoves.contains(new ChessMove(opposingPosition, kingPosition, null)) ||
                         opposingMoves.contains(new ChessMove(opposingPosition, kingPosition, ChessPiece.PieceType.QUEEN)) ||
                         opposingMoves.contains(new ChessMove(opposingPosition, kingPosition, ChessPiece.PieceType.KNIGHT)) ||
