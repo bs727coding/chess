@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -53,6 +54,7 @@ public class ChessGame {
         ChessPiece piece = new ChessPiece(board.getPiece(startPosition).getTeamColor(),
                 board.getPiece(startPosition).getPieceType());
         Collection<ChessMove> validMoves = piece.pieceMoves(board, startPosition);
+        Collection<ChessMove> invalidMoves = new ArrayList<>();
         ChessPiece originalPieceEnd;
         //if in check, remove moves that do not take the king out of check
         //if not in check, only remove moves that put the king in check
@@ -63,13 +65,16 @@ public class ChessGame {
             }
             actuallyMakeMove(move);
             if (isInCheck(piece.getTeamColor())) {
-                validMoves.remove(move);
+                invalidMoves.add(move);
             }
             //reset to the way it was
             if (originalPieceEnd != null) {
                 board.addPiece(move.getEndPosition(), originalPieceEnd);
             }
             board.addPiece(startPosition, piece);
+        }
+        for (ChessMove invalidMove : invalidMoves) {
+            validMoves.remove(invalidMove);
         }
         return validMoves;
     }
@@ -94,6 +99,11 @@ public class ChessGame {
                     move.getStartPosition().toString() + ", end position: " + move.getEndPosition().toString());
         } else {
             actuallyMakeMove(move);
+            if (turn == TeamColor.WHITE) {
+                turn = TeamColor.BLACK;
+            } else {
+                turn = TeamColor.WHITE;
+            }
         }
     }
 
