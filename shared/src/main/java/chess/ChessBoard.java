@@ -65,6 +65,10 @@ public class ChessBoard {
         boardArray[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
 
+    public void clearPiece(ChessPosition position) {
+        boardArray[position.getRow() - 1][position.getColumn() - 1] = null;
+    }
+
     /**
      * Gets a chess piece on the chessboard
      *
