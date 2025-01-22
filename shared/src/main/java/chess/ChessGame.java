@@ -97,6 +97,18 @@ public class ChessGame {
         }
     }
 
+    private ChessPosition findKing(TeamColor color) {
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                if (board.getPiece(position) != null && board.getPiece(position).getTeamColor() == color &&
+                        board.getPiece(position).getPieceType() == ChessPiece.PieceType.KING) {
+                    return position;
+                }
+            }
+        }
+        return null;
+    }
     /**
      * Determines if the given team is in check
      *
@@ -104,8 +116,24 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
-        //find king of corresponding color
+        //throw new RuntimeException("Not implemented");
+        ChessPosition kingPosition = findKing(teamColor);//find king of corresponding color
+        TeamColor opposingColor;
+        if (teamColor == TeamColor.WHITE) {
+            opposingColor = TeamColor.BLACK;
+        } else {
+            opposingColor = TeamColor.WHITE;
+        }
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition opposingPosition = new ChessPosition(i, j);
+                if (board.getPiece(opposingPosition) != null &&
+                        board.getPiece(opposingPosition).getTeamColor() == opposingColor) {
+
+                }
+            }
+        }
+        return false;
         //check valid moves for opposing color for moves that end with the king's position
         //if such a move exists, return true. Else return false
     }
