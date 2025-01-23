@@ -35,7 +35,8 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         return moveList;
     }
 
-    static boolean addMove(ChessBoard board, ChessPosition originalPosition, Collection<ChessMove> moveList, ChessGame.TeamColor color, int i, int j) {
+    static boolean addMove(ChessBoard board, ChessPosition originalPosition, Collection<ChessMove> moveList,
+                           ChessGame.TeamColor color, int i, int j) {
         ChessPosition newPosition = new ChessPosition(i, j);
         if (board.getPiece(newPosition) != null) {
             if (board.getPiece(newPosition).getTeamColor() != color) {

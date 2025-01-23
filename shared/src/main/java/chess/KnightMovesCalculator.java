@@ -34,13 +34,15 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         return moveList;
     }
 
-    static void bottomRight(ChessBoard board, ChessPosition originalPosition, Collection<ChessMove> moveList, ChessGame.TeamColor color, int i, int j, boolean b, boolean b2) {
+    static void bottomRight(ChessBoard board, ChessPosition originalPosition, Collection<ChessMove> moveList,
+                            ChessGame.TeamColor color, int i, int j, boolean b, boolean b2) {
         if (b && b2) {
             addToList(board, originalPosition, moveList, color, i, j);
         }
     }
 
-    static void addToList(ChessBoard board, ChessPosition originalPosition, Collection<ChessMove> moveList, ChessGame.TeamColor color, int i, int j) {
+    static void addToList(ChessBoard board, ChessPosition originalPosition, Collection<ChessMove> moveList,
+                          ChessGame.TeamColor color, int i, int j) {
         ChessPosition newPosition = new ChessPosition(i, j);
         if (board.getPiece(newPosition) != null) {
             if (board.getPiece(newPosition).getTeamColor() != color) {
@@ -51,13 +53,15 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         }
     }
 
-    static void bottomLeft(ChessBoard board, ChessPosition originalPosition, Collection<ChessMove> moveList, ChessGame.TeamColor color, int i, int j) {
+    static void bottomLeft(ChessBoard board, ChessPosition originalPosition, Collection<ChessMove> moveList,
+                           ChessGame.TeamColor color, int i, int j) {
         if (i > 0 && j > 0) {
             addToList(board, originalPosition, moveList, color, i, j);
         }
     }
 
-    private void topLeft(ChessBoard board, int r, int c, ChessPosition originalPosition, Collection<ChessMove> moveList, ChessGame.TeamColor color, int i2, int i3) {
+    private void topLeft(ChessBoard board, int r, int c, ChessPosition originalPosition, Collection<ChessMove> moveList,
+                         ChessGame.TeamColor color, int i2, int i3) {
         int i;
         int j;
         i = r - i2;
@@ -65,7 +69,8 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         bottomRight(board, originalPosition, moveList, color, i, j, i > 0, j < 9);
     }
 
-    static void topRight(ChessBoard board, ChessPosition originalPosition, Collection<ChessMove> moveList, ChessGame.TeamColor color, int i, int j) {
+    static void topRight(ChessBoard board, ChessPosition originalPosition, Collection<ChessMove> moveList,
+                         ChessGame.TeamColor color, int i, int j) {
         if (i < 9 && j < 9) {
             addToList(board, originalPosition, moveList, color, i, j);
         }

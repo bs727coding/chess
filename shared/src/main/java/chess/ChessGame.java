@@ -81,77 +81,87 @@ public class ChessGame {
         for (ChessMove invalidMove : invalidMoves) {
             validMoves.remove(invalidMove);
         }
-        //castling
+        castle(startPosition, piece, validMoves);
+        return validMoves;
+    }
+
+    private void castle(ChessPosition startPosition, ChessPiece piece, Collection<ChessMove> validMoves) {
         if (piece.getPieceType() == ChessPiece.PieceType.KING && piece.hasNotMoved()) {
             if (piece.getTeamColor() == TeamColor.WHITE) {
-                if (board.getPiece(new ChessPosition(1, 1)) != null) {
-                    ChessPiece rookPiece = board.getPiece(new ChessPosition(1, 1));
-                    if (rookPiece.hasNotMoved()) {
-                        if (board.getPiece(new ChessPosition(1, 2)) == null && board.getPiece(new ChessPosition
-                                (1, 3)) == null && board.getPiece(new ChessPosition(1, 4)) == null) {
-                            boolean moveWorks = true;
-                            for (int i = 4; i > 1; i--) {
-                                moveWorks = isMoveWorksWhite(moveWorks, i);
-                            }
-                            if (moveWorks) {
-                                validMoves.add(new ChessMove(startPosition, new ChessPosition(1, 3), null));
-                                validMoves.add(new ChessMove(new ChessPosition(1, 1), new ChessPosition(1, 4), null));
-                            }
-                        }
-                    }
-
-                }
-                if (board.getPiece(new ChessPosition(1, 8)) != null) {
-                    ChessPiece rookPiece2 = board.getPiece(new ChessPosition(1, 8));
-                    if (rookPiece2.hasNotMoved()) {
-                        if (board.getPiece(new ChessPosition(1, 6)) == null && board.getPiece(new ChessPosition(1, 7)) == null) {
-                            boolean moveWorks = true;
-                            for (int i = 6; i < 8; i++) {
-                                moveWorks = isMoveWorksWhite(moveWorks, i);
-                            }
-                            if (moveWorks) {
-                                validMoves.add(new ChessMove(startPosition, new ChessPosition(1, 7), null));
-                                validMoves.add(new ChessMove(new ChessPosition(1, 8), new ChessPosition(1, 6), null));
-                            }
-                        }
-                    }
-                }
+                castleWhite(startPosition, validMoves);
             } else { //black
-                if (board.getPiece(new ChessPosition(8, 1)) != null) { //queenSide
-                    ChessPiece rookPiece = board.getPiece(new ChessPosition(8, 1));
-                    if (rookPiece.hasNotMoved()) {
-                        if (board.getPiece(new ChessPosition(8, 2)) == null && board.getPiece(new ChessPosition
-                                (8, 3)) == null && board.getPiece(new ChessPosition(8, 4)) == null) {
-                            boolean moveWorks = true;
-                            for (int i = 4; i > 1; i--) {
-                                moveWorks = isMoveWorksBlack(moveWorks, i);
-                            }
-                            if (moveWorks) {
-                                validMoves.add(new ChessMove(startPosition, new ChessPosition(8, 3), null));
-                                //validMoves.add(new ChessMove(new ChessPosition(8, 1), new ChessPosition(8, 4), null));
-                            }
-                        }
-                    }
+                castleBlack(startPosition, validMoves);
+            }
+        }
+    }
 
-                }
-                if (board.getPiece(new ChessPosition(8, 8)) != null) { //kingSide
-                    ChessPiece rookPiece2 = board.getPiece(new ChessPosition(8, 8));
-                    if (rookPiece2.hasNotMoved()) {
-                        if (board.getPiece(new ChessPosition(8, 6)) == null && board.getPiece(new ChessPosition(8, 7)) == null) {
-                            boolean moveWorks = true;
-                            for (int i = 6; i < 8; i++) {
-                                moveWorks = isMoveWorksBlack(moveWorks, i);
-                            }
-                            if (moveWorks) {
-                                validMoves.add(new ChessMove(startPosition, new ChessPosition(8, 7), null));
-                                //validMoves.add(new ChessMove(new ChessPosition(8, 8), new ChessPosition(8, 6), null));
-                            }
-                        }
+    private void castleBlack(ChessPosition startPosition, Collection<ChessMove> validMoves) {
+        if (board.getPiece(new ChessPosition(8, 1)) != null) { //queenSide
+            ChessPiece rookPiece = board.getPiece(new ChessPosition(8, 1));
+            if (rookPiece.hasNotMoved()) {
+                if (board.getPiece(new ChessPosition(8, 2)) == null && board.getPiece(new ChessPosition
+                        (8, 3)) == null && board.getPiece(new ChessPosition(8, 4)) == null) {
+                    boolean moveWorks = true;
+                    for (int i = 4; i > 1; i--) {
+                        moveWorks = isMoveWorksBlack(moveWorks, i);
+                    }
+                    if (moveWorks) {
+                        validMoves.add(new ChessMove(startPosition, new ChessPosition(8, 3), null));
+                        //validMoves.add(new ChessMove(new ChessPosition(8, 1), new ChessPosition(8, 4), null));
                     }
                 }
             }
         }
-        return validMoves;
+        if (board.getPiece(new ChessPosition(8, 8)) != null) { //kingSide
+            ChessPiece rookPiece2 = board.getPiece(new ChessPosition(8, 8));
+            if (rookPiece2.hasNotMoved()) {
+                if (board.getPiece(new ChessPosition(8, 6)) == null && board.getPiece(new ChessPosition(8, 7)) == null) {
+                    boolean moveWorks = true;
+                    for (int i = 6; i < 8; i++) {
+                        moveWorks = isMoveWorksBlack(moveWorks, i);
+                    }
+                    if (moveWorks) {
+                        validMoves.add(new ChessMove(startPosition, new ChessPosition(8, 7), null));
+                        //validMoves.add(new ChessMove(new ChessPosition(8, 8), new ChessPosition(8, 6), null));
+                    }
+                }
+            }
+        }
+    }
+
+    private void castleWhite(ChessPosition startPosition, Collection<ChessMove> validMoves) {
+        if (board.getPiece(new ChessPosition(1, 1)) != null) {
+            ChessPiece rookPiece = board.getPiece(new ChessPosition(1, 1));
+            if (rookPiece.hasNotMoved()) {
+                if (board.getPiece(new ChessPosition(1, 2)) == null && board.getPiece(new ChessPosition
+                        (1, 3)) == null && board.getPiece(new ChessPosition(1, 4)) == null) {
+                    boolean moveWorks = true;
+                    for (int i = 4; i > 1; i--) {
+                        moveWorks = isMoveWorksWhite(moveWorks, i);
+                    }
+                    if (moveWorks) {
+                        validMoves.add(new ChessMove(startPosition, new ChessPosition(1, 3), null));
+                        validMoves.add(new ChessMove(new ChessPosition(1, 1), new ChessPosition(1, 4), null));
+                    }
+                }
+            }
+
+        }
+        if (board.getPiece(new ChessPosition(1, 8)) != null) {
+            ChessPiece rookPiece2 = board.getPiece(new ChessPosition(1, 8));
+            if (rookPiece2.hasNotMoved()) {
+                if (board.getPiece(new ChessPosition(1, 6)) == null && board.getPiece(new ChessPosition(1, 7)) == null) {
+                    boolean moveWorks = true;
+                    for (int i = 6; i < 8; i++) {
+                        moveWorks = isMoveWorksWhite(moveWorks, i);
+                    }
+                    if (moveWorks) {
+                        validMoves.add(new ChessMove(startPosition, new ChessPosition(1, 7), null));
+                        validMoves.add(new ChessMove(new ChessPosition(1, 8), new ChessPosition(1, 6), null));
+                    }
+                }
+            }
+        }
     }
 
     private boolean isMoveWorksBlack(boolean moveWorks, int i) {
