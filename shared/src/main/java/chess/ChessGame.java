@@ -93,6 +93,11 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        if (board.getPiece(move.getStartPosition()) == null) {
+            throw new InvalidMoveException("Error: no piece at specified starting position.");
+        } else if (board.getPiece(move.getStartPosition()).getTeamColor() != turn) {
+            throw new InvalidMoveException("Error: move taken out of turn.");
+        }
         Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
         if (!validMoves.contains(move)) {
             throw new InvalidMoveException("Error: invalid move chosen for start position: " +
@@ -126,8 +131,7 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        //throw new RuntimeException("Not implemented");
-        ChessPosition kingPosition = findKing(teamColor);//find king of corresponding color
+        ChessPosition kingPosition = findKing(teamColor); //find king of corresponding color
         TeamColor opposingColor;
         if (teamColor == TeamColor.WHITE) {
             opposingColor = TeamColor.BLACK;
@@ -169,6 +173,7 @@ public class ChessGame {
                     ChessPosition position = new ChessPosition(i, j);
                     if (board.getPiece(position) != null &&
                             board.getPiece(position).getTeamColor() == teamColor) {
+                        //ChessPiece checkPiece = new ChessPiece(board.getPiece(position).getTeamColor(), board.getPiece(position).getPieceType());
                         if (!validMoves(position).isEmpty()) {
                             return false;
                         }
