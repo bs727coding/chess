@@ -15,94 +15,32 @@ public class KingMovesCalculator implements PieceMovesCalculator {
         int i, j;
         i = r + 1;
         j = c + 1;
-        if (i < 9 && j < 9) {
-            ChessPosition newPosition = new ChessPosition(i, j);
-            if (board.getPiece(newPosition) != null) {
-                if (board.getPiece(newPosition).getTeamColor() != color) {
-                    moveList.add(new ChessMove(originalPosition, newPosition, null));
-                }
-            } else {
-                moveList.add(new ChessMove(originalPosition, newPosition, null));
-            }
-        }
+        KnightMovesCalculator.topRight(board, originalPosition, moveList, color, i, j);
         j = c - 1;
         if (i < 9 && j > 0) {
-            ChessPosition newPosition = new ChessPosition(i, j);
-            if (board.getPiece(newPosition) != null) {
-                if (board.getPiece(newPosition).getTeamColor() != color) {
-                    moveList.add(new ChessMove(originalPosition, newPosition, null));
-                }
-            } else {
-                moveList.add(new ChessMove(originalPosition, newPosition, null));
-            }
+            KnightMovesCalculator.addToList(board, originalPosition, moveList, color, i, j);
         }
         j = c;
         if (i < 9) {
-            ChessPosition newPosition = new ChessPosition(i, j);
-            if (board.getPiece(newPosition) != null) {
-                if (board.getPiece(newPosition).getTeamColor() != color) {
-                    moveList.add(new ChessMove(originalPosition, newPosition, null));
-                }
-            } else {
-                moveList.add(new ChessMove(originalPosition, newPosition, null));
-            }
+            KnightMovesCalculator.addToList(board, originalPosition, moveList, color, i, j);
         }
         i = r - 1;
         j = c + 1;
-        if (i > 0 && j < 9) {
-            ChessPosition newPosition = new ChessPosition(i, j);
-            if (board.getPiece(newPosition) != null) {
-                if (board.getPiece(newPosition).getTeamColor() != color) {
-                    moveList.add(new ChessMove(originalPosition, newPosition, null));
-                }
-            } else {
-                moveList.add(new ChessMove(originalPosition, newPosition, null));
-            }
-        }
+        KnightMovesCalculator.bottomRight(board, originalPosition, moveList, color, i, j, i > 0, j < 9);
         j = c - 1;
-        if (i > 0 && j > 0) {
-            ChessPosition newPosition = new ChessPosition(i, j);
-            if (board.getPiece(newPosition) != null) {
-                if (board.getPiece(newPosition).getTeamColor() != color) {
-                    moveList.add(new ChessMove(originalPosition, newPosition, null));
-                }
-            } else {
-                moveList.add(new ChessMove(originalPosition, newPosition, null));
-            }
-        }
+        KnightMovesCalculator.bottomLeft(board, originalPosition, moveList, color, i, j);
         j = c;
         if (i > 0) {
-            ChessPosition newPosition = new ChessPosition(i, j);
-            if (board.getPiece(newPosition) != null) {
-                if (board.getPiece(newPosition).getTeamColor() != color) {
-                    moveList.add(new ChessMove(originalPosition, newPosition, null));
-                }
-            } else {
-                moveList.add(new ChessMove(originalPosition, newPosition, null));
-            }
+            KnightMovesCalculator.addToList(board, originalPosition, moveList, color, i, j);
         }
         i = r;
         j = c - 1;
         if (j > 0) {
-            ChessPosition newPosition = new ChessPosition(i, j);
-            if (board.getPiece(newPosition) != null) {
-                if (board.getPiece(newPosition).getTeamColor() != color) {
-                    moveList.add(new ChessMove(originalPosition, newPosition, null));
-                }
-            } else {
-                moveList.add(new ChessMove(originalPosition, newPosition, null));
-            }
+            KnightMovesCalculator.addToList(board, originalPosition, moveList, color, i, j);
         }
         j = c + 1;
         if (j < 9) {
-            ChessPosition newPosition = new ChessPosition(i, j);
-            if (board.getPiece(newPosition) != null) {
-                if (board.getPiece(newPosition).getTeamColor() != color) {
-                    moveList.add(new ChessMove(originalPosition, newPosition, null));
-                }
-            } else {
-                moveList.add(new ChessMove(originalPosition, newPosition, null));
-            }
+            KnightMovesCalculator.addToList(board, originalPosition, moveList, color, i, j);
         }
         return moveList;
     }

@@ -13,47 +13,23 @@ public class RookMovesCalculator implements PieceMovesCalculator {
         final ChessGame.TeamColor color = board.getPiece(myPosition).getTeamColor();
         int i, j;
         for (i = r + 1, j = c; i < 9; i++) {
-            ChessPosition newPosition = new ChessPosition(i, j);
-            if (board.getPiece(newPosition) != null) {
-                if (board.getPiece(newPosition).getTeamColor() != color) {
-                    moveList.add(new ChessMove(originalPosition, newPosition, null));
-                }
+            if (BishopMovesCalculator.addMove(board, originalPosition, moveList, color, i, j)) {
                 break;
-            } else {
-                moveList.add(new ChessMove(originalPosition, newPosition, null));
             }
         }
         for (i = r - 1, j = c; i > 0; i--) {
-            ChessPosition newPosition = new ChessPosition(i, j);
-            if (board.getPiece(newPosition) != null) {
-                if (board.getPiece(newPosition).getTeamColor() != color) {
-                    moveList.add(new ChessMove(originalPosition, newPosition, null));
-                }
+            if (BishopMovesCalculator.addMove(board, originalPosition, moveList, color, i, j)) {
                 break;
-            } else {
-                moveList.add(new ChessMove(originalPosition, newPosition, null));
             }
         }
         for (i = r, j = c + 1; j < 9; j++) {
-            ChessPosition newPosition = new ChessPosition(i, j);
-            if (board.getPiece(newPosition) != null) {
-                if (board.getPiece(newPosition).getTeamColor() != color) {
-                    moveList.add(new ChessMove(originalPosition, newPosition, null));
-                }
+            if (BishopMovesCalculator.addMove(board, originalPosition, moveList, color, i, j)) {
                 break;
-            } else {
-                moveList.add(new ChessMove(originalPosition, newPosition, null));
             }
         }
         for (i = r, j = c - 1; j > 0; j--) {
-            ChessPosition newPosition = new ChessPosition(i, j);
-            if (board.getPiece(newPosition) != null) {
-                if (board.getPiece(newPosition).getTeamColor() != color) {
-                    moveList.add(new ChessMove(originalPosition, newPosition, null));
-                }
+            if (BishopMovesCalculator.addMove(board, originalPosition, moveList, color, i, j)) {
                 break;
-            } else {
-                moveList.add(new ChessMove(originalPosition, newPosition, null));
             }
         }
         return moveList;

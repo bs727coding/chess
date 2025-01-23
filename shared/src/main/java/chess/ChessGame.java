@@ -60,7 +60,8 @@ public class ChessGame {
         for (ChessMove move : validMoves) {
             originalPieceEnd = null;
             if (board.getPiece(move.getEndPosition()) != null) {
-                originalPieceEnd = new ChessPiece(board.getPiece(move.getEndPosition()).getTeamColor(), board.getPiece(move.getEndPosition()).getPieceType());
+                originalPieceEnd = new ChessPiece(board.getPiece(move.getEndPosition()).getTeamColor(),
+                        board.getPiece(move.getEndPosition()).getPieceType());
             }
             try {
                 actuallyMakeMove(move);
@@ -86,7 +87,8 @@ public class ChessGame {
                 if (board.getPiece(new ChessPosition(1, 1)) != null) {
                     ChessPiece rookPiece = board.getPiece(new ChessPosition(1, 1));
                     if (rookPiece.hasNotMoved()) {
-                        if (board.getPiece(new ChessPosition(1, 2)) == null && board.getPiece(new ChessPosition(1, 3)) == null && board.getPiece(new ChessPosition(1, 4)) == null) {
+                        if (board.getPiece(new ChessPosition(1, 2)) == null && board.getPiece(new ChessPosition
+                                (1, 3)) == null && board.getPiece(new ChessPosition(1, 4)) == null) {
                             boolean moveWorks = true;
                             for (int i = 4; i > 1; i--) {
                                 moveWorks = isMoveWorksWhite(moveWorks, i);
@@ -118,7 +120,8 @@ public class ChessGame {
                 if (board.getPiece(new ChessPosition(8, 1)) != null) { //queenSide
                     ChessPiece rookPiece = board.getPiece(new ChessPosition(8, 1));
                     if (rookPiece.hasNotMoved()) {
-                        if (board.getPiece(new ChessPosition(8, 2)) == null && board.getPiece(new ChessPosition(8, 3)) == null && board.getPiece(new ChessPosition(8, 4)) == null) {
+                        if (board.getPiece(new ChessPosition(8, 2)) == null && board.getPiece(new ChessPosition
+                                (8, 3)) == null && board.getPiece(new ChessPosition(8, 4)) == null) {
                             boolean moveWorks = true;
                             for (int i = 4; i > 1; i--) {
                                 moveWorks = isMoveWorksBlack(moveWorks, i);
