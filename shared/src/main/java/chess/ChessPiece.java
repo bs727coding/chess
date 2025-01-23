@@ -10,11 +10,13 @@ import java.util.Collection;
  */
 public class ChessPiece {
 
+    private boolean hasMoved;
     private final ChessGame.TeamColor pieceColor;
     private final ChessPiece.PieceType type;
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
+        hasMoved = false;
     }
 
     /**
@@ -80,6 +82,13 @@ public class ChessPiece {
         return this.type;
     }
 
+    public boolean hasMoved() {
+        return hasMoved;
+    }
+
+    public void setHasMoved() {
+        hasMoved = true;
+    }
 
     /**
      * Calculates all the positions a chess piece can move to
