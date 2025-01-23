@@ -63,13 +63,18 @@ public class ChessGame {
             if (board.getPiece(move.getEndPosition()) != null) {
                 originalPieceEnd = new ChessPiece(board.getPiece(move.getEndPosition()).getTeamColor(), board.getPiece(move.getEndPosition()).getPieceType());
             }
-            actuallyMakeMove(move);
+            try {
+                actuallyMakeMove(move);
+            } catch (InvalidMoveException e) {
+                throw new RuntimeException(e);
+            }
             if (isInCheck(piece.getTeamColor())) {
                 invalidMoves.add(move);
             }
-            //reset to the way it was
             if (originalPieceEnd != null) {
                 board.addPiece(move.getEndPosition(), originalPieceEnd);
+            } else {
+                board.clearPiece(move.getEndPosition());
             }
             board.addPiece(startPosition, piece);
         }
@@ -79,11 +84,22 @@ public class ChessGame {
         return validMoves;
     }
 
-    public void actuallyMakeMove(ChessMove move) {
+    public void actuallyMakeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece piece = new ChessPiece(board.getPiece(move.getStartPosition()).getTeamColor(),
                 board.getPiece(move.getStartPosition()).getPieceType());
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            switch (move.getPromotionPiece()) {
+                case KNIGHT -> board.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), ChessPiece.PieceType.KNIGHT));
+                case QUEEN -> board.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), ChessPiece.PieceType.QUEEN));
+                case ROOK -> board.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), ChessPiece.PieceType.ROOK));
+                case BISHOP -> board.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), ChessPiece.PieceType.BISHOP));
+                case null -> board.addPiece(move.getEndPosition(), piece);
+                default -> throw new InvalidMoveException("Error: Pawn was attempted to be promoted to an invalid piece type.");
+            }
+        } else {
+            board.addPiece(move.getEndPosition(), piece);
+        }
         board.clearPiece(move.getStartPosition());
-        board.addPiece(move.getEndPosition(), piece);
     }
 
     /**
@@ -103,7 +119,11 @@ public class ChessGame {
             throw new InvalidMoveException("Error: invalid move chosen for start position: " +
                     move.getStartPosition().toString() + ", end position: " + move.getEndPosition().toString());
         } else {
-            actuallyMakeMove(move);
+            try {
+                actuallyMakeMove(move);
+            } catch (InvalidMoveException e) {
+                throw new RuntimeException(e);
+            }
             if (turn == TeamColor.WHITE) {
                 turn = TeamColor.BLACK;
             } else {
