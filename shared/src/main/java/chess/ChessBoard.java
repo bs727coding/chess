@@ -46,10 +46,8 @@ public class ChessBoard {
                 if (this.boardArray[i][j] == null ^ that.boardArray[i][j] == null) {
                     return false;
                 } else {
-                    if (this.boardArray[i][j] != null || that.boardArray[i][j] != null) {
-                        if (!(this.boardArray[i][j].equals(that.boardArray[i][j]))) {
-                            return false;
-                        }
+                    if ((this.boardArray[i][j] != null || that.boardArray[i][j] != null) && !(this.boardArray[i][j].equals(that.boardArray[i][j]))) {
+                        return false;
                     }
                 }
             }

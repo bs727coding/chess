@@ -23,11 +23,11 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
             }
             j = c - 1;
             if (j > 0 && i < 9) {
-                addToList(board, i, j, color, originalPosition, moveList);
+                addToListWhite(board, i, j, color, originalPosition, moveList);
             }
             j = c + 1;
             if (j < 9 && i < 9) {
-                addToList(board, i, j, color, originalPosition, moveList);
+                addToListWhite(board, i, j, color, originalPosition, moveList);
             }
             if (r == 2) {
                 i = r + 2;
@@ -49,17 +49,11 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
             }
             j = c - 1;
             if (j > 0 && i > 0) {
-                ChessPosition newPosition = new ChessPosition(i, j);
-                if (board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != color) {
-                    addPromotionBlack(originalPosition, moveList, i, newPosition);
-                }
+                addToListBlack(board, i, j, color, originalPosition, moveList);
             }
             j = c + 1;
             if (j < 9 && i > 0) {
-                ChessPosition newPosition = new ChessPosition(i, j);
-                if (board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != color) {
-                    addPromotionBlack(originalPosition, moveList, i, newPosition);
-                }
+                addToListBlack(board, i, j, color, originalPosition, moveList);
             }
             if (r == 7) {
                 i = r - 2;
@@ -74,10 +68,19 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         return moveList;
     }
 
-    private void addToList(ChessBoard board, int i, int j, ChessGame.TeamColor color, ChessPosition originalPosition, Collection<ChessMove> moveList) {
+    private void addToListWhite(ChessBoard board, int i, int j, ChessGame.TeamColor color, ChessPosition
+            originalPosition, Collection<ChessMove> moveList) {
         ChessPosition newPosition = new ChessPosition(i, j);
         if (board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != color) {
             addPromotionWhite(originalPosition, moveList, i, newPosition);
+        }
+    }
+
+    private void addToListBlack(ChessBoard board, int i, int j, ChessGame.TeamColor color, ChessPosition
+            originalPosition, Collection<ChessMove> moveList) {
+        ChessPosition newPosition = new ChessPosition(i, j);
+        if (board.getPiece(newPosition) != null && board.getPiece(newPosition).getTeamColor() != color) {
+            addPromotionBlack(originalPosition, moveList, i, newPosition);
         }
     }
 
