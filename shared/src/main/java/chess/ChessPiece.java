@@ -82,8 +82,8 @@ public class ChessPiece {
         return this.type;
     }
 
-    public boolean hasMoved() {
-        return hasMoved;
+    public boolean hasNotMoved() {
+        return !hasMoved;
     }
 
     public void setHasMoved() {

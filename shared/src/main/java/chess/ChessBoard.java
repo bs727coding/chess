@@ -45,10 +45,12 @@ public class ChessBoard {
             for (int j = 0; j < 8; j++) {
                 if (this.boardArray[i][j] == null ^ that.boardArray[i][j] == null) {
                     return false;
-                } else if (this.boardArray[i][j] == null && that.boardArray[i][j] == null) {
-                    continue;
-                } else if (!(this.boardArray[i][j].equals(that.boardArray[i][j]))) {
-                        return false;
+                } else {
+                    if (this.boardArray[i][j] != null || that.boardArray[i][j] != null) {
+                        if (!(this.boardArray[i][j].equals(that.boardArray[i][j]))) {
+                            return false;
+                        }
+                    }
                 }
             }
         }
