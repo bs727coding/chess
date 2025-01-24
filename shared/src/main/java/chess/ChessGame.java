@@ -84,6 +84,13 @@ public class ChessGame {
         }
         castle(startPosition, piece, validMoves);
         validMoves.addAll(enPassantAvailability(startPosition, piece));
+        Collection<ChessMove> nowInvalidMoves = new ArrayList<>();
+        for (ChessMove enPassantMove : validMoves) {
+            if (isEnPassantMove(enPassantMove) && !board.getPiece(lastMove.getEndPosition()).justDoubleMoved()) {
+                nowInvalidMoves.add(enPassantMove);
+            }
+        }
+        validMoves.removeAll(nowInvalidMoves);
         return validMoves;
     }
 
@@ -91,35 +98,35 @@ public class ChessGame {
         Collection<ChessMove> moveList = new ArrayList<>();
         if (piece.getPieceType() != ChessPiece.PieceType.PAWN) {
             return moveList;
-        } else if (piece.getTeamColor() == TeamColor.WHITE && startPosition.getRow() == 6) {
+        } else if (piece.getTeamColor() == TeamColor.WHITE && startPosition.getRow() == 5) {
             if (startPosition.getColumn() == 1) {
-                if (board.getPiece(new ChessPosition(6, 2)) != null) {
-                    ChessPiece oppositePiece = board.getPiece(new ChessPosition(6, 2));
+                if (board.getPiece(new ChessPosition(5, 2)) != null) {
+                    ChessPiece oppositePiece = board.getPiece(new ChessPosition(5, 2));
                     if (oppositePiece.getPieceType() == ChessPiece.PieceType.PAWN && oppositePiece.getTeamColor() == TeamColor.BLACK && oppositePiece.justDoubleMoved()) {
-                        moveList.add(new ChessMove(startPosition, new ChessPosition(7, 2), null));
+                        moveList.add(new ChessMove(startPosition, new ChessPosition(6, 2), null));
                         return moveList;
                     }
                 }
             } else if (startPosition.getColumn() == 8) {
-                if (board.getPiece(new ChessPosition(6, 7)) != null) {
-                    ChessPiece oppositePiece = board.getPiece(new ChessPosition(6, 7));
+                if (board.getPiece(new ChessPosition(5, 7)) != null) {
+                    ChessPiece oppositePiece = board.getPiece(new ChessPosition(5, 7));
                     if (oppositePiece.getPieceType() == ChessPiece.PieceType.PAWN && oppositePiece.getTeamColor() == TeamColor.BLACK && oppositePiece.justDoubleMoved()) {
-                        moveList.add(new ChessMove(startPosition, new ChessPosition(7, 7), null));
+                        moveList.add(new ChessMove(startPosition, new ChessPosition(6, 7), null));
                         return moveList;
                     }
                 }
             } else { //2-7
                 for (int i = 2; i < 8; i ++) {
-                    if (board.getPiece(new ChessPosition(6, i + 1)) != null) {
-                        ChessPiece oppositePiece = board.getPiece(new ChessPosition(6, i + 1));
+                    if (board.getPiece(new ChessPosition(5, i + 1)) != null) {
+                        ChessPiece oppositePiece = board.getPiece(new ChessPosition(5, i + 1));
                         if (oppositePiece.getPieceType() == ChessPiece.PieceType.PAWN && oppositePiece.getTeamColor() == TeamColor.BLACK && oppositePiece.justDoubleMoved()) {
-                            moveList.add(new ChessMove(startPosition, new ChessPosition(7, i + 1), null));
+                            moveList.add(new ChessMove(startPosition, new ChessPosition(6, i + 1), null));
                         }
                     }
-                    if (board.getPiece(new ChessPosition(6, i - 1)) != null) {
-                        ChessPiece oppositePiece = board.getPiece(new ChessPosition(6, i - 1));
+                    if (board.getPiece(new ChessPosition(5, i - 1)) != null) {
+                        ChessPiece oppositePiece = board.getPiece(new ChessPosition(5, i - 1));
                         if (oppositePiece.getPieceType() == ChessPiece.PieceType.PAWN && oppositePiece.getTeamColor() == TeamColor.BLACK && oppositePiece.justDoubleMoved()) {
-                            moveList.add(new ChessMove(startPosition, new ChessPosition(7, i - 1), null));
+                            moveList.add(new ChessMove(startPosition, new ChessPosition(6, i - 1), null));
                         }
                     }
                 }
@@ -127,33 +134,33 @@ public class ChessGame {
             }
         } else if (startPosition.getRow() == 4) { //Black
             if (startPosition.getColumn() == 1) {
-                if (board.getPiece(new ChessPosition(3, 2)) != null) {
-                    ChessPiece oppositePiece = board.getPiece(new ChessPosition(3, 2));
+                if (board.getPiece(new ChessPosition(4, 2)) != null) {
+                    ChessPiece oppositePiece = board.getPiece(new ChessPosition(4, 2));
                     if (oppositePiece.getPieceType() == ChessPiece.PieceType.PAWN && oppositePiece.getTeamColor() == TeamColor.WHITE && oppositePiece.justDoubleMoved()) {
-                        moveList.add(new ChessMove(startPosition, new ChessPosition(2, 2), null));
+                        moveList.add(new ChessMove(startPosition, new ChessPosition(3, 2), null));
                         return moveList;
                     }
                 }
             } else if (startPosition.getColumn() == 8) {
-                if (board.getPiece(new ChessPosition(3, 7)) != null) {
-                    ChessPiece oppositePiece = board.getPiece(new ChessPosition(3, 7));
+                if (board.getPiece(new ChessPosition(4, 7)) != null) {
+                    ChessPiece oppositePiece = board.getPiece(new ChessPosition(4, 7));
                     if (oppositePiece.getPieceType() == ChessPiece.PieceType.PAWN && oppositePiece.getTeamColor() == TeamColor.WHITE && oppositePiece.justDoubleMoved()) {
-                        moveList.add(new ChessMove(startPosition, new ChessPosition(2, 7), null));
+                        moveList.add(new ChessMove(startPosition, new ChessPosition(3, 7), null));
                         return moveList;
                     }
                 }
             } else { //2-7
                 for (int i = 2; i < 8; i++) {
-                    if (board.getPiece(new ChessPosition(3, i + 1)) != null) {
-                        ChessPiece oppositePiece = board.getPiece(new ChessPosition(3, i + 1));
+                    if (board.getPiece(new ChessPosition(4, i + 1)) != null) {
+                        ChessPiece oppositePiece = board.getPiece(new ChessPosition(4, i + 1));
                         if (oppositePiece.getPieceType() == ChessPiece.PieceType.PAWN && oppositePiece.getTeamColor() == TeamColor.WHITE && oppositePiece.justDoubleMoved()) {
-                            moveList.add(new ChessMove(startPosition, new ChessPosition(2, i + 1), null));
+                            moveList.add(new ChessMove(startPosition, new ChessPosition(3, i + 1), null));
                         }
                     }
-                    if (board.getPiece(new ChessPosition(3, i - 1)) != null) {
-                        ChessPiece oppositePiece = board.getPiece(new ChessPosition(3, i - 1));
+                    if (board.getPiece(new ChessPosition(4, i - 1)) != null) {
+                        ChessPiece oppositePiece = board.getPiece(new ChessPosition(4, i - 1));
                         if (oppositePiece.getPieceType() == ChessPiece.PieceType.PAWN && oppositePiece.getTeamColor() == TeamColor.WHITE && oppositePiece.justDoubleMoved()) {
-                            moveList.add(new ChessMove(startPosition, new ChessPosition(2, i - 1), null));
+                            moveList.add(new ChessMove(startPosition, new ChessPosition(3, i - 1), null));
                         }
                     }
                 }
