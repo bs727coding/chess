@@ -11,12 +11,14 @@ import java.util.Collection;
 public class ChessPiece {
 
     private boolean hasMoved;
+    private boolean justDoubleMoved;
     private final ChessGame.TeamColor pieceColor;
     private final ChessPiece.PieceType type;
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
         hasMoved = false;
+        justDoubleMoved = false;
     }
 
     /**
@@ -29,6 +31,14 @@ public class ChessPiece {
         KNIGHT,
         ROOK,
         PAWN
+    }
+
+    public boolean justDoubleMoved() {
+        return justDoubleMoved;
+    }
+
+    public void setJustDoubleMoved(boolean value) {
+        justDoubleMoved = value;
     }
 
     public String toString() {
