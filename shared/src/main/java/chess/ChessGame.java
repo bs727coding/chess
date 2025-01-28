@@ -208,7 +208,6 @@ public class ChessGame {
                     if (moveWorks) {
                         validMoves.add(new ChessMove(startPosition, new ChessPosition(8, 3),
                                 null));
-                        //validMoves.add(new ChessMove(new ChessPosition(8, 1), new ChessPosition(8, 4), null));
                     }
                 }
             }
