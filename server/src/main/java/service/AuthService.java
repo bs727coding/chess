@@ -2,17 +2,24 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryAuthDAO;
 import model.AuthData;
 
 public class AuthService {
-    private AuthDAO authDAO = new MemoryAuthDAO();
+    private AuthDAO authDAO;
 
-    private AuthData getAuthData(String authToken) throws DataAccessException {
+    public AuthService(AuthDAO authDAO) {
+        this.authDAO = authDAO;
+    }
+
+    public AuthData getAuthData(String authToken) throws DataAccessException {
         return authDAO.getAuth(authToken);
     }
     public void deleteAuthData(String authToken) throws DataAccessException {
         authDAO.deleteAuth(authToken);
+    }
+
+    public void createAuthData(AuthData authData) throws DataAccessException {
+        authDAO.createAuth(authData);
     }
 
     public void clear() {
