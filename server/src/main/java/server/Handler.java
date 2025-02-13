@@ -1,5 +1,19 @@
 package server;
 
+import service.AuthService;
+import service.GameService;
+import service.UserService;
+
 public class Handler {
-    //7 handlers? 3? How do the lambdas work?
+    private UserService userService;
+    private AuthService authService;
+    private GameService gameService;
+
+    public Handler(UserService userService, AuthService authService, GameService gameService) {
+        this.userService = userService;
+        this.authService = authService;
+        this.gameService = gameService;
+    }
+
+    //Todo: implement handler methods here
 }

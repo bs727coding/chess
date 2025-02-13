@@ -1,6 +1,7 @@
 package dataaccess;
 
 import model.GameData;
+import model.GameInformation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,8 +25,13 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public ArrayList<GameData> listGames() {
-        return new ArrayList<>(games.values());
+    public ArrayList<GameInformation> listGames() {
+        ArrayList<GameInformation> gameList = new ArrayList<>();
+        for (GameData game : games.values()) {
+            GameInformation gameInformation = new GameInformation(game);
+            gameList.add(gameInformation);
+        }
+        return gameList;
     }
 
     @Override
@@ -34,6 +40,15 @@ public class MemoryGameDAO implements GameDAO {
             games.replace(updatedGameData.gameID(), updatedGameData);
         } else {
             throw new DataAccessException("Error: game not found.");
+        }
+    }
+
+    @Override
+    public GameData getGameData(int gameID) throws DataAccessException {
+        if (games.containsKey(gameID)) {
+            return games.get(gameID);
+        } else {
+            throw new DataAccessException("Error: bad request");
         }
     }
 }

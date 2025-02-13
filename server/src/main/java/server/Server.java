@@ -2,7 +2,6 @@
 package server;
 
 import dataaccess.*;
-import handler.CreateGameHandler;
 import service.AuthService;
 import service.GameService;
 import service.UserService;
@@ -14,14 +13,14 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
         UserDAO userDAO = new MemoryUserDAO();
         AuthDAO authDAO = new MemoryAuthDAO();
         GameDAO gameDAO = new MemoryGameDAO();
-        UserService userService = new UserService(userDAO, authDAO);//pass in authDAO and UserDAO as constructor
-        AuthService authService = new AuthService(authDAO); //pass in authDAO
+        UserService userService = new UserService(userDAO, authDAO);
+        AuthService authService = new AuthService(authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
-        CreateGameHandler gameHandler = new CreateGameHandler(); //pass in GameService in constructor
-
+        Handler handler = new Handler(userService, authService, gameService);
 
         // Register your endpoints and handle exceptions here.
 
