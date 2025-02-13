@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.*;
+import model.AuthData;
 import model.UserData;
 import request.LoginRequest;
 import request.LogoutRequest;
@@ -8,6 +9,7 @@ import request.RegisterRequest;
 import result.LoginResult;
 import result.LogoutResult;
 import result.RegisterResult;
+import java.util.UUID;
 
 public class UserService {
     private UserDAO userDAO;
@@ -21,22 +23,30 @@ public class UserService {
     public LoginResult login(LoginRequest loginRequest) throws DataAccessException {
         UserData userData = userDAO.getUser(loginRequest.username());
         if (!userData.password().equals(loginRequest.password())) {
-            throw new DataAccessException("Error: invalid password provided.");
+            throw new DataAccessException("Error: unauthorized.");
         } else {
-
+            String authToken = UUID.randomUUID().toString();
+            authDAO.createAuth(new AuthData(authToken, loginRequest.username()));
+            return new LoginResult(loginRequest.username(), authToken);
         }
-        return null;
-        //Todo: implement
     }
 
-    public LogoutResult logout(LogoutRequest logoutRequest) {
-        return null;
-        //Todo: implement
+    public LogoutResult logout(LogoutRequest logoutRequest) throws DataAccessException {
+        authDAO.getAuth(logoutRequest.authToken()); //no need to store authData, this is just to check errors
+        authDAO.deleteAuth(logoutRequest.authToken());
+        return new LogoutResult();
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) {
-        return null;
-        //Todo: implement
+    public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException {
+        if (userDAO.userNameTaken(registerRequest.username())) {
+            throw new DataAccessException("Error: already taken.");
+        } else {
+            userDAO.createUser(new UserData(registerRequest.username(), registerRequest.password(),
+                    registerRequest.email()));
+        }
+        String authToken = UUID.randomUUID().toString();
+        authDAO.createAuth(new AuthData(authToken, registerRequest.username()));
+        return new RegisterResult(registerRequest.username(), authToken);
     }
 
     public void clear() {
