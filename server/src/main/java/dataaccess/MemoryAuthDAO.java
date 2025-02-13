@@ -1,33 +1,40 @@
 package dataaccess;
 
 import model.AuthData;
+import java.util.HashMap;
 
 public class MemoryAuthDAO implements AuthDAO {
 
+    private HashMap<String, AuthData> authMap;
+
     @Override
     public void clearAuthData() {
-        DataStructures.authDataSet.clear();
+        authMap.clear();
     }
 
     @Override
-    public void createAuth(AuthData authData) {
-        DataStructures.authDataSet.add(authData);
+    public void createAuth(AuthData authData) throws DataAccessException {
+        if (authMap.containsKey(authData.authToken())) {
+            throw new DataAccessException("Error: authToken already taken.");
+        } else {
+            authMap.put(authData.authToken(), authData);
+        }
     }
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
-        for (AuthData authData : DataStructures.authDataSet) {
-            if (authData.authToken().equals(authToken)) {
-                return authData;
-            }
+        if (authMap.containsKey(authToken)) {
+            return authMap.get(authToken);
+        } else {
+            throw new DataAccessException("Error: authData not found.");
         }
-        throw new DataAccessException("Error: authData not found.");
     }
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-        boolean removed = DataStructures.authDataSet.removeIf(authData -> authData.authToken().equals(authToken));
-        if (!removed) {
+        if (authMap.containsKey(authToken)) {
+            authMap.remove(authToken);
+        } else {
             throw new DataAccessException("Error: authData not found.");
         }
     }

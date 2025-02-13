@@ -3,46 +3,37 @@ package dataaccess;
 import model.GameData;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MemoryGameDAO implements GameDAO {
 
+    private HashMap<Integer, GameData> games;
+
     @Override
     public void clearGameData() {
-        DataStructures.gameDataSet.clear();
+        games.clear();
     }
 
     @Override
     public void createGame(GameData gameData) throws DataAccessException {
-        for (GameData game : DataStructures.gameDataSet) {
-            if (game.gameID() == gameData.gameID()) {
-                throw new DataAccessException("Error: gameID already exists.");
-            }
+        if (games.containsKey(gameData.gameID())) {
+            throw new DataAccessException("Error: game already exists.");
+        } else {
+            games.put(gameData.gameID(), gameData);
         }
-        DataStructures.gameDataSet.add(gameData);
     }
 
     @Override
     public ArrayList<GameData> listGames() {
-        return new ArrayList<>(DataStructures.gameDataSet);
+        return new ArrayList<>(games.values());
     }
 
     @Override
     public void updateGame(GameData updatedGameData) throws DataAccessException {
-        GameData updatedGame = null;
-        GameData oldGame = null;
-        boolean foundGame = false;
-        for (GameData game : DataStructures.gameDataSet) {
-            if (game.gameID() == updatedGameData.gameID()) {
-                updatedGame = updatedGameData;
-                oldGame = game;
-                foundGame = true;
-            }
-        }
-        if (foundGame) {
-           DataStructures.gameDataSet.remove(oldGame);
-           DataStructures.gameDataSet.add(updatedGame);
+        if (games.containsKey(updatedGameData.gameID())) {
+            games.replace(updatedGameData.gameID(), updatedGameData);
         } else {
-            throw new DataAccessException("Error: could not update game since game is not found.");
+            throw new DataAccessException("Error: game not found.");
         }
     }
 }
