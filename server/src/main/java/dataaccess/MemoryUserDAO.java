@@ -2,18 +2,11 @@ package dataaccess;
 
 import model.UserData;
 
-import java.util.HashSet;
-
 public class MemoryUserDAO implements UserDAO {
-    private HashSet<UserData> userSet;
-
-    public MemoryUserDAO() {
-        userSet = new HashSet<>();
-    }
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        for (UserData user : userSet) {
+        for (UserData user : DataStructures.userDataSet) {
             if (user.username().equals(username)) {
                 return user;
             }
@@ -23,16 +16,16 @@ public class MemoryUserDAO implements UserDAO {
 
     @Override
     public void clearUserData() {
-        userSet.clear();
+        DataStructures.userDataSet.clear();
     }
 
     @Override
     public void createUser(UserData userData) throws DataAccessException {
-        for (UserData user : userSet) {
+        for (UserData user : DataStructures.userDataSet) {
             if (user.username().equals(userData.username())) {
                 throw new DataAccessException("Error: user already taken.");
             }
         }
-        userSet.add(userData);
+        DataStructures.userDataSet.add(userData);
     }
 }

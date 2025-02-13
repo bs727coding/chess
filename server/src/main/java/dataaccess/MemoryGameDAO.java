@@ -3,34 +3,27 @@ package dataaccess;
 import model.GameData;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public class MemoryGameDAO implements GameDAO {
 
-    private HashSet<GameData> gameDataSet;
-
-    public MemoryGameDAO() {
-        gameDataSet = new HashSet<>();
-    }
-
     @Override
     public void clearGameData() {
-        gameDataSet.clear();
+        DataStructures.gameDataSet.clear();
     }
 
     @Override
     public void createGame(GameData gameData) throws DataAccessException {
-        for (GameData game : gameDataSet) {
+        for (GameData game : DataStructures.gameDataSet) {
             if (game.gameID() == gameData.gameID()) {
                 throw new DataAccessException("Error: gameID already exists.");
             }
         }
-        gameDataSet.add(gameData);
+        DataStructures.gameDataSet.add(gameData);
     }
 
     @Override
     public ArrayList<GameData> listGames() {
-        return new ArrayList<>(gameDataSet);
+        return new ArrayList<>(DataStructures.gameDataSet);
     }
 
     @Override
@@ -38,7 +31,7 @@ public class MemoryGameDAO implements GameDAO {
         GameData updatedGame = null;
         GameData oldGame = null;
         boolean foundGame = false;
-        for (GameData game : gameDataSet) {
+        for (GameData game : DataStructures.gameDataSet) {
             if (game.gameID() == updatedGameData.gameID()) {
                 updatedGame = updatedGameData;
                 oldGame = game;
@@ -46,8 +39,8 @@ public class MemoryGameDAO implements GameDAO {
             }
         }
         if (foundGame) {
-           gameDataSet.remove(oldGame);
-           gameDataSet.add(updatedGame);
+           DataStructures.gameDataSet.remove(oldGame);
+           DataStructures.gameDataSet.add(updatedGame);
         } else {
             throw new DataAccessException("Error: could not update game since game is not found.");
         }
