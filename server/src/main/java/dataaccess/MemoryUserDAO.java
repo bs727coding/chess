@@ -1,6 +1,8 @@
 package dataaccess;
 
 import model.UserData;
+import service.AlreadyTakenException;
+
 import java.util.HashMap;
 
 public class MemoryUserDAO implements UserDAO {
@@ -17,19 +19,14 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public boolean userNameTaken(String username) {
-        return users.containsKey(username);
-    }
-
-    @Override
     public void clearUserData() {
         users.clear();
     }
 
     @Override
-    public void createUser(UserData userData) throws DataAccessException {
+    public void createUser(UserData userData) throws AlreadyTakenException {
         if (users.containsKey(userData.username())) {
-            throw new DataAccessException("Error: username already taken.");
+            throw new AlreadyTakenException("Error: already taken.");
         } else {
             users.put(userData.username(), userData);
         }

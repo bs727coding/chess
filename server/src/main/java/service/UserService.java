@@ -37,13 +37,9 @@ public class UserService {
         return new LogoutResult();
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException {
-        if (userDAO.userNameTaken(registerRequest.username())) {
-            throw new DataAccessException("Error: already taken.");
-        } else {
-            userDAO.createUser(new UserData(registerRequest.username(), registerRequest.password(),
-                    registerRequest.email()));
-        }
+    public RegisterResult register(RegisterRequest registerRequest) throws AlreadyTakenException, ServiceException {
+        userDAO.createUser(new UserData(registerRequest.username(), registerRequest.password(),
+                registerRequest.email())); //TODO: implement badRequest service exception
         String authToken = UUID.randomUUID().toString();
         authDAO.createAuth(new AuthData(authToken, registerRequest.username()));
         return new RegisterResult(registerRequest.username(), authToken);

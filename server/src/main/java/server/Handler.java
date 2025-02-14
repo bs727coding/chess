@@ -1,5 +1,6 @@
 package server;
 
+import chess.ChessGame;
 import com.google.gson.*;
 import dataaccess.DataAccessException;
 import request.*;
@@ -11,10 +12,12 @@ import spark.Response;
 public class Handler {
     private UserService userService;
     private GameService gameService;
+    private AuthService authService;
 
-    public Handler(UserService userService, GameService gameService) {
+    public Handler(UserService userService, GameService gameService, AuthService authService) {
         this.userService = userService;
         this.gameService = gameService;
+        this.authService = authService;
     }
 
     private static <T> T getBody(Request request, Class<T> clazz) {
@@ -25,7 +28,7 @@ public class Handler {
         return body;
     }
 
-    public Object loginHandler(Request req, Response res) throws DataAccessException {
+    public Object loginHandler(Request req, Response res) {
         try {
             LoginRequest loginRequest = getBody(req, LoginRequest.class);
             LoginResult loginResult = userService.login(loginRequest);
@@ -40,35 +43,106 @@ public class Handler {
         }
     }
 
-    public Object logoutHandler(Request req, Response res) throws DataAccessException {
-        String header = req.headers("authorization");
-
-        return null;
-        //Todo: implement
+    public Object logoutHandler(Request req, Response res) {
+        try {
+            LogoutResult logoutResult = userService.logout(new LogoutRequest(req.headers("authorization")));
+            res.status(200);
+            return new Gson().toJson(logoutResult);
+        } catch (DataAccessException e) {
+            res.status(401);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        } catch (Exception e) {
+            res.status(500);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        }
     }
 
-    public Object registerHandler(Request req, Response res) throws DataAccessException {
-        return null;
-        //Todo: implement
+    public Object registerHandler(Request req, Response res) {
+        try {
+            RegisterRequest registerRequest = getBody(req, RegisterRequest.class);
+            RegisterResult registerResult = userService.register(registerRequest);
+            res.status(200);
+            return new Gson().toJson(registerResult);
+        } catch (ServiceException e) {
+            res.status(400);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        } catch (AlreadyTakenException e) {
+            res.status(403);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        } catch (Exception e) {
+            res.status(500);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        }
     }
 
-    public Object listGamesHandler(Request req, Response res) throws DataAccessException {
-        return null;
-        //Todo: implement
+    public Object listGamesHandler(Request req, Response res) {
+        try {
+            ListGamesResult listGamesResult = gameService.listGames(new ListGamesRequest(req.headers("authorization")));
+            res.status(200);
+            return new Gson().toJson(listGamesResult);
+        } catch (DataAccessException e) {
+            res.status(401);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        } catch (Exception e) {
+            res.status(500);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        }
     }
 
-    public Object createGameHandler(Request req, Response res) throws DataAccessException {
-        return null;
-        //Todo: implement
+    public Object createGameHandler(Request req, Response res) {
+        try {
+            String gameName = getBody(req, String.class);
+            String authToken = req.headers("authorization");
+            CreateGameResult createGameResult = gameService.createGame(new CreateGameRequest(authToken, gameName));
+            res.status(200);
+            return new Gson().toJson(createGameResult);
+        } catch (ServiceException e) {
+            res.status(400);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        } catch (DataAccessException e) {
+            res.status(401);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        } catch (Exception e) {
+            res.status(500);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        }
     }
 
-    public Object joinGameHandler(Request req, Response res) throws DataAccessException {
-        return null;
-        //Todo: implement
+    public Object joinGameHandler(Request req, Response res) {
+        try {
+            String authToken = req.headers("authorization");
+            JoinGameBody joinGameBody = getBody(req, JoinGameBody.class);
+            ChessGame.TeamColor playerColor = joinGameBody.teamColor();
+            int gameID = joinGameBody.gameID();
+            JoinGameRequest joinGameRequest = new JoinGameRequest(authToken, playerColor, gameID);
+            JoinGameResult joinGameResult = gameService.joinGame(joinGameRequest);
+            res.status(200);
+            return new Gson().toJson(joinGameResult);
+        } catch (ServiceException e) {
+            res.status(400);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        } catch (DataAccessException e) {
+            res.status(401);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        } catch (AlreadyTakenException e) {
+            res.status(403);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        } catch (Exception e) {
+            res.status(500);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        }
     }
 
     public Object clearHandler(Request req, Response res) {
-        return null;
-        //Todo: implement
+        try {
+            userService.clear();
+            gameService.clear();
+            authService.clear();
+            res.status(200);
+            return new Gson().toJson(null);
+        } catch (Exception e) {
+            res.status(500);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        }
     }
 }

@@ -1,6 +1,8 @@
 package dataaccess;
 
 import model.AuthData;
+import service.AlreadyTakenException;
+
 import java.util.HashMap;
 
 public class MemoryAuthDAO implements AuthDAO {
@@ -13,9 +15,9 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void createAuth(AuthData authData) throws DataAccessException {
+    public void createAuth(AuthData authData) throws AlreadyTakenException {
         if (authMap.containsKey(authData.authToken())) {
-            throw new DataAccessException("Error: authToken already taken.");
+            throw new AlreadyTakenException("Error: already taken.");
         } else {
             authMap.put(authData.authToken(), authData);
         }
@@ -26,7 +28,7 @@ public class MemoryAuthDAO implements AuthDAO {
         if (authMap.containsKey(authToken)) {
             return authMap.get(authToken);
         } else {
-            throw new DataAccessException("Error: authData not found.");
+            throw new DataAccessException("Error: unauthorized.");
         }
     }
 

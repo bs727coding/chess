@@ -31,8 +31,8 @@ public class GameService {
         return new ListGamesResult(gameList);
     }
 
-    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws DataAccessException {
-        authDAO.getAuth(createGameRequest.authToken());
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws ServiceException, DataAccessException {
+        authDAO.getAuth(createGameRequest.authToken()); //TODO: add ServiceException
         int gameID = (Math.abs(createGameRequest.gameName().hashCode()) % 100000);
         try {
             gameDAO.createGame(new GameData(gameID, null, null, createGameRequest.gameName(),
@@ -45,8 +45,8 @@ public class GameService {
         return new CreateGameResult(gameID);
     }
 
-    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws DataAccessException {
-        AuthData authData = authDAO.getAuth(joinGameRequest.authToken());
+    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws ServiceException, DataAccessException {
+        AuthData authData = authDAO.getAuth(joinGameRequest.authToken()); //TODO: add ServiceException
         String username = authData.username();
         GameData gameData = gameDAO.getGameData(joinGameRequest.gameID());
         GameData updatedGameData;
