@@ -10,9 +10,9 @@ import spark.Request;
 import spark.Response;
 
 public class Handler {
-    private UserService userService;
-    private GameService gameService;
-    private AuthService authService;
+    private final UserService userService;
+    private final GameService gameService;
+    private final AuthService authService;
 
     public Handler(UserService userService, GameService gameService, AuthService authService) {
         this.userService = userService;
@@ -91,9 +91,11 @@ public class Handler {
 
     public Object createGameHandler(Request req, Response res) {
         try {
-            String gameName = getBody(req, String.class);
+            CreateGameHeader gameName = getBody(req, CreateGameHeader.class);
+            //String gameName = "hello";
             String authToken = req.headers("authorization");
-            CreateGameResult createGameResult = gameService.createGame(new CreateGameRequest(authToken, gameName));
+            CreateGameResult createGameResult = gameService.createGame
+                    (new CreateGameRequest(authToken, gameName.gameName()));
             res.status(200);
             return new Gson().toJson(createGameResult);
         } catch (ServiceException e) {

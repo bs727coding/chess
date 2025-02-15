@@ -17,8 +17,8 @@ import result.ListGamesResult;
 import java.util.ArrayList;
 
 public class GameService {
-    private GameDAO gameDAO;
-    private AuthDAO authDAO;
+    private final GameDAO gameDAO;
+    private final AuthDAO authDAO;
 
     public GameService(GameDAO gameDAO, AuthDAO authDAO) {
         this.gameDAO = gameDAO;

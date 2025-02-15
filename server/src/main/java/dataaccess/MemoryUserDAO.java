@@ -9,6 +9,10 @@ public class MemoryUserDAO implements UserDAO {
 
     HashMap<String, UserData> users;
 
+    public MemoryUserDAO() {
+        users = new HashMap<>();
+    }
+
     @Override
     public UserData getUser(String username) throws DataAccessException {
         if (users.containsKey(username)) {
