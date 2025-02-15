@@ -9,6 +9,8 @@ import request.RegisterRequest;
 import result.LoginResult;
 import result.LogoutResult;
 import result.RegisterResult;
+
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class UserService {
@@ -43,6 +45,10 @@ public class UserService {
         String authToken = UUID.randomUUID().toString();
         authDAO.createAuth(new AuthData(authToken, registerRequest.username()));
         return new RegisterResult(registerRequest.username(), authToken);
+    }
+
+    public ArrayList<UserData> getUserList() {
+        return userDAO.getUsers();
     }
 
     public void clear() {

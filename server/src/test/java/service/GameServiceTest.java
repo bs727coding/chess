@@ -29,6 +29,6 @@ class GameServiceTest {
     }
 
     @Test
-    void clear() {
+    void clearGamesPositive() {
     }
 }

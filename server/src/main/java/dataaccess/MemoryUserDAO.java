@@ -3,6 +3,7 @@ package dataaccess;
 import model.UserData;
 import service.AlreadyTakenException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MemoryUserDAO implements UserDAO {
@@ -34,5 +35,9 @@ public class MemoryUserDAO implements UserDAO {
         } else {
             users.put(userData.username(), userData);
         }
+    }
+
+    public ArrayList<UserData> getUsers() {
+        return new ArrayList<>(users.values());
     }
 }
