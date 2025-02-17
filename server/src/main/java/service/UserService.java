@@ -40,6 +40,9 @@ public class UserService {
     }
 
     public RegisterResult register(RegisterRequest registerRequest) throws AlreadyTakenException, ServiceException {
+        if (registerRequest.username() == null || registerRequest.password() == null || registerRequest.email() == null) {
+            throw new ServiceException("Error: bad request");
+        }
         userDAO.createUser(new UserData(registerRequest.username(), registerRequest.password(),
                 registerRequest.email())); //TODO: implement badRequest service exception
         String authToken = UUID.randomUUID().toString();

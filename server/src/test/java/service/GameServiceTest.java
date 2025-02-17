@@ -79,7 +79,7 @@ class GameServiceTest {
             CreateGameRequest createGameRequest = new CreateGameRequest(registerResult.authToken(),
                     "testGame");
             gameService.createGame(createGameRequest);
-            Assertions.assertThrows(AlreadyTakenException.class, () -> gameService.createGame(createGameRequest));
+            Assertions.assertThrows(ServiceException.class, () -> gameService.createGame(new CreateGameRequest(registerResult.authToken(), null)));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

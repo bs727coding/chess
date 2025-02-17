@@ -32,7 +32,10 @@ public class GameService {
     }
 
     public CreateGameResult createGame(CreateGameRequest createGameRequest) throws ServiceException, DataAccessException {
-        authDAO.getAuth(createGameRequest.authToken()); //TODO: add ServiceException
+        if (createGameRequest.gameName() == null || createGameRequest.authToken() == null) {
+            throw new ServiceException("Error: bad request");
+        }
+        authDAO.getAuth(createGameRequest.authToken());
         int gameID = (Math.abs(createGameRequest.gameName().hashCode()) % 100000);
         try {
             gameDAO.createGame(new GameData(gameID, null, null, createGameRequest.gameName(),
@@ -47,7 +50,10 @@ public class GameService {
 
     public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws ServiceException, AlreadyTakenException,
             DataAccessException {
-        AuthData authData = authDAO.getAuth(joinGameRequest.authToken()); //TODO: add ServiceException
+        if (joinGameRequest.gameID() == 0 || joinGameRequest.playerColor() == null || joinGameRequest.authToken() == null) {
+            throw new ServiceException("Error: bad request");
+        }
+        AuthData authData = authDAO.getAuth(joinGameRequest.authToken());
         String username = authData.username();
         GameData gameData = gameDAO.getGameData(joinGameRequest.gameID());
         GameData updatedGameData;
