@@ -44,7 +44,7 @@ public class UserService {
             throw new ServiceException("Error: bad request");
         }
         userDAO.createUser(new UserData(registerRequest.username(), registerRequest.password(),
-                registerRequest.email())); //TODO: implement badRequest service exception
+                registerRequest.email()));
         String authToken = UUID.randomUUID().toString();
         authDAO.createAuth(new AuthData(authToken, registerRequest.username()));
         return new RegisterResult(registerRequest.username(), authToken);
