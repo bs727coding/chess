@@ -45,21 +45,22 @@ public class GameService {
         return new CreateGameResult(gameID);
     }
 
-    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws ServiceException, DataAccessException {
+    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws ServiceException, AlreadyTakenException,
+            DataAccessException {
         AuthData authData = authDAO.getAuth(joinGameRequest.authToken()); //TODO: add ServiceException
         String username = authData.username();
         GameData gameData = gameDAO.getGameData(joinGameRequest.gameID());
         GameData updatedGameData;
         if (joinGameRequest.playerColor().equals(ChessGame.TeamColor.WHITE)) {
             if (gameData.whiteUsername() != null) {
-                throw new DataAccessException("Error: already taken");
+                throw new AlreadyTakenException("Error: already taken");
             } else {
                 updatedGameData = new GameData(gameData.gameID(), username, gameData.blackUsername(),
                         gameData.gameName(), gameData.game());
             }
         } else {
             if (gameData.blackUsername() != null) {
-                throw new DataAccessException("Error: already taken");
+                throw new AlreadyTakenException("Error: already taken");
             } else {
                 updatedGameData = new GameData(gameData.gameID(), gameData.whiteUsername(), username,
                         gameData.gameName(), gameData.game());

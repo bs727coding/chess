@@ -92,7 +92,6 @@ public class Handler {
     public Object createGameHandler(Request req, Response res) {
         try {
             CreateGameHeader gameName = getBody(req, CreateGameHeader.class);
-            //String gameName = "hello";
             String authToken = req.headers("authorization");
             CreateGameResult createGameResult = gameService.createGame
                     (new CreateGameRequest(authToken, gameName.gameName()));
@@ -114,7 +113,7 @@ public class Handler {
         try {
             String authToken = req.headers("authorization");
             JoinGameBody joinGameBody = getBody(req, JoinGameBody.class);
-            ChessGame.TeamColor playerColor = joinGameBody.teamColor();
+            ChessGame.TeamColor playerColor = joinGameBody.playerColor();
             int gameID = joinGameBody.gameID();
             JoinGameRequest joinGameRequest = new JoinGameRequest(authToken, playerColor, gameID);
             JoinGameResult joinGameResult = gameService.joinGame(joinGameRequest);

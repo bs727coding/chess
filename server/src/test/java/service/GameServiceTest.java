@@ -2,7 +2,6 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.*;
-import model.GameData;
 import model.GameInformation;
 import org.junit.jupiter.api.*;
 import request.*;
