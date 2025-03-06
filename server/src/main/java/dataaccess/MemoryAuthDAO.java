@@ -3,6 +3,7 @@ package dataaccess;
 import model.AuthData;
 import service.AlreadyTakenException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MemoryAuthDAO implements AuthDAO {
@@ -43,5 +44,9 @@ public class MemoryAuthDAO implements AuthDAO {
         } else {
             throw new DataAccessException("Error: authData not found.");
         }
+    }
+
+    public ArrayList<AuthData> getAuths() {
+        return new ArrayList<>(authMap.values());
     }
 }
