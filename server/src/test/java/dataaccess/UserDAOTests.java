@@ -3,6 +3,9 @@ package dataaccess;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import service.AlreadyTakenException;
+import service.ServiceException;
+
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class UserDAOTests {
@@ -13,6 +16,18 @@ public class UserDAOTests {
     @BeforeEach
     void setup() {
         userDAO = new MySQLUserDAO(); //change to MemoryUserDAO if desired
+        var statement = "DROP DATABASE chess";
+        try (var conn = DatabaseManager.getConnection()) {
+            var preparedStatement = conn.prepareStatement(statement);
+            preparedStatement.executeUpdate();
+        } catch (DataAccessException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         user1 = new UserData("bob", "bob's password", "bob@byu.edu");
         user2 = new UserData("jane", "jane's password", "jane@byu.edu");
     }
