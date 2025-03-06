@@ -1,5 +1,6 @@
 package dataaccess;
 
+
 import java.sql.*;
 import java.util.Properties;
 
@@ -8,6 +9,37 @@ public class DatabaseManager {
     private static final String USER;
     private static final String PASSWORD;
     private static final String CONNECTION_URL;
+
+    private static final String[] createStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS  Games (
+              `gameID` int NOT NULL,
+              `whiteUserName` varchar(256),
+              `blackUserName` varchar(256),
+              `gameName` varchar(256) NOT NULL,
+              `chessGame` TEXT NOT NULL,
+              PRIMARY KEY (`gameID`),
+              INDEX (`gameName`)
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS  Authorization (
+              `authToken` TEXT NOT NULL,
+              `userName` varchar(256) NOT NULL,
+              PRIMARY KEY (`userName`),
+              INDEX (`userName`)
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS  Users (
+              `userName` varchar(256) NOT NULL,
+              `password` varchar(256) NOT NULL,
+              `email` varchar(256) NOT NULL,
+              PRIMARY KEY (`userName`),
+              INDEX (`userName`)
+            )
+            """
+    };
 
     /*
      * Load the database information for the db.properties file.
@@ -42,6 +74,23 @@ public class DatabaseManager {
             var conn = DriverManager.getConnection(CONNECTION_URL, USER, PASSWORD);
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
+            }
+            statement = "USE " + DATABASE_NAME;
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
+            createTables();
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    static void createTables() throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            for (var statement : createStatements) {
+                try (var preparedStatement = conn.prepareStatement(statement)) {
+                    preparedStatement.executeUpdate();
+                }
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());

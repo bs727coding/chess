@@ -3,7 +3,6 @@ package dataaccess;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import service.AlreadyTakenException;
-import service.ServiceException;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
