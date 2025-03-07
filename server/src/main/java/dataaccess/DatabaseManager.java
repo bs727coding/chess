@@ -10,7 +10,7 @@ public class DatabaseManager {
     private static final String PASSWORD;
     private static final String CONNECTION_URL;
 
-    private static final String[] Create_Statements = {
+    private static final String[] CREATE_STATEMENTS = {
             """
             CREATE TABLE IF NOT EXISTS  Games (
               `gameID` int NOT NULL,
@@ -87,7 +87,7 @@ public class DatabaseManager {
 
     static void createTables() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : Create_Statements) {
+            for (var statement : CREATE_STATEMENTS) {
                 try (var preparedStatement = conn.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
                 }
