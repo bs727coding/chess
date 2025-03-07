@@ -46,13 +46,7 @@ public class MySQLGameDAO implements GameDAO {
                 try (var rs = ps.executeQuery()) {
                     while (rs.next()) {
                         String whiteUsername = rs.getString("whiteUsername");
-                        if (rs.wasNull()) {
-                            whiteUsername = null;
-                        }
                         String blackUsername = rs.getString("blackUsername");
-                        if (rs.wasNull()) {
-                            blackUsername = null;
-                        }
                         result.add(new GameInformation(rs.getInt("gameID"), whiteUsername, blackUsername,
                                 rs.getString("gameName")));
                     }
