@@ -4,6 +4,7 @@ import model.AuthData;
 import org.junit.jupiter.api.*;
 import service.AlreadyTakenException;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class AuthDAOTests {
@@ -17,6 +18,18 @@ public class AuthDAOTests {
     @BeforeEach
     void setup() {
         //authDAO = new MemoryAuthDAO(); // use for Memory implementation
+        var statement = "DROP DATABASE chess";
+        try (var conn = DatabaseManager.getConnection()) {
+            var preparedStatement = conn.prepareStatement(statement);
+            preparedStatement.executeUpdate();
+        } catch (DataAccessException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         authDAO = new MySQLAuthDAO(); // use for MySQL implementation
         authToken1 = "testToken1";
         authToken2 = "testToken2";

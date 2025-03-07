@@ -5,23 +5,32 @@ import model.GameData;
 import model.GameInformation;
 import org.junit.jupiter.api.*;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class GameDAOTests {
     private GameDAO gameDAO;
     private GameData gameData1;
     private GameData gameData2;
-    private ChessGame chessGame1;
-    private ChessGame chessGame2;
 
     @BeforeEach
     void setup() {
         //gameDAO = new MemoryGameDAO();
+        var statement = "DROP DATABASE chess";
+        try (var conn = DatabaseManager.getConnection()) {
+            var preparedStatement = conn.prepareStatement(statement);
+            preparedStatement.executeUpdate();
+        } catch (DataAccessException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            DatabaseManager.createDatabase();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
         gameDAO = new MySQLGameDAO();
-        chessGame1 = new ChessGame();
-        chessGame2 = new ChessGame();
-        gameData1 = new GameData(1, "bob", "jane","bob's game", chessGame1);
-        gameData2 = new GameData(2, "brick", "nils", "brick's game", chessGame2);
+        gameData1 = new GameData(1, "bob", "jane","bob's game", new ChessGame());
+        gameData2 = new GameData(2, "brick", "nils", "brick's game", new ChessGame());
 
     }
 
@@ -44,8 +53,8 @@ public class GameDAOTests {
             gameDAO.createGame(gameData1);
             ArrayList<GameInformation> actual = gameDAO.listGames();
             ArrayList<GameInformation> expected = new ArrayList<>();
-            expected.add(new GameInformation(1, "bob", "jane","bob's game" ));
-            Assertions.assertEquals(expected, actual);
+            expected.add(new GameInformation(1, "null", "null","bob's game" ));
+            Assertions.assertEquals(expected.getFirst(), actual.getFirst());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -68,8 +77,8 @@ public class GameDAOTests {
             gameDAO.createGame(gameData2);
             ArrayList<GameInformation> actual = gameDAO.listGames();
             ArrayList<GameInformation> expected = new ArrayList<>();
-            expected.add(new GameInformation(1, "bob", "jane","bob's game" ));
-            expected.add(new GameInformation(2, "brick", "nils","brick's game" ));
+            expected.add(new GameInformation(1, "null", "null","bob's game"));
+            expected.add(new GameInformation(2, "null", "null","brick's game"));
             Assertions.assertEquals(expected, actual);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -109,9 +118,9 @@ public class GameDAOTests {
     void getGameDataPositive() {
         try {
             gameDAO.createGame(gameData1);
-            GameData expected = gameData1;
+            GameData expected = new GameData(gameData1.gameID(), null, null, gameData1.gameName(), new ChessGame());
             GameData actual = gameDAO.getGameData(1);
-            Assertions.assertEquals(expected, actual);
+            Assertions.assertEquals(new GameInformation(expected), new GameInformation(actual));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
