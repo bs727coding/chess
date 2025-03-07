@@ -23,7 +23,7 @@ public class UserService {
         this.authDAO = authDAO;
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws DataAccessException {
+    public LoginResult login(LoginRequest loginRequest) throws DataAccessException, NotFoundException {
         UserData userData = userDAO.getUser(loginRequest.username());
         if (!BCrypt.checkpw(loginRequest.password(), userData.password())) {
             throw new DataAccessException("Error: unauthorized.");

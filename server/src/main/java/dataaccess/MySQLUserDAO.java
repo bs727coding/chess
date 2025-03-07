@@ -2,21 +2,25 @@ package dataaccess;
 
 import model.UserData;
 import service.AlreadyTakenException;
+import service.NotFoundException;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class MySQLUserDAO implements UserDAO {
     @Override
-    public UserData getUser(String username) throws DataAccessException {
+    public UserData getUser(String username) throws DataAccessException, NotFoundException {
         var statement = "SELECT password, email FROM Users WHERE username =?";
         try (var conn = DatabaseManager.getConnection()) {
             var preparedStatement = conn.prepareStatement(statement);
             preparedStatement.setString(1, username);
             var rs = preparedStatement.executeQuery();
+            if (!rs.next()) {
+                throw new NotFoundException("Error: user not found.");
+            }
             return new UserData(username, rs.getString("password"), rs.getString("email"));
         } catch (SQLException e) {
-            throw new DataAccessException("Error: user not found.");
+            throw new DataAccessException(e.getMessage());
         }
     }
 
@@ -41,7 +45,7 @@ public class MySQLUserDAO implements UserDAO {
             preparedStatement.setString(3, userData.email());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new AlreadyTakenException(e.getMessage());
+            throw new AlreadyTakenException("Error: Already Taken");
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }

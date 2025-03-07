@@ -34,7 +34,7 @@ public class Handler {
             LoginResult loginResult = userService.login(loginRequest);
             res.status(200);
             return new Gson().toJson(loginResult);
-        } catch (DataAccessException e) {
+        } catch (DataAccessException | NotFoundException e) {
             res.status(401);
             return new Gson().toJson(new ErrorResult(e.getMessage()));
         } catch (Exception e) {

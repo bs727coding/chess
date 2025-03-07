@@ -3,6 +3,7 @@ package dataaccess;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import service.AlreadyTakenException;
+import service.NotFoundException;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ public class UserDAOTests {
 
     @BeforeEach
     void setup() {
+        //userDAO = new MemoryUserDAO();
         userDAO = new MySQLUserDAO(); //change to MemoryUserDAO if desired
         var statement = "DROP DATABASE chess";
         try (var conn = DatabaseManager.getConnection()) {
@@ -47,7 +49,7 @@ public class UserDAOTests {
             UserData actual = userDAO.getUser("bob");
             UserData expected = new UserData("bob", "bob's password", "bob@byu.edu");
             Assertions.assertEquals(expected, actual);
-        } catch (DataAccessException e) {
+        } catch (DataAccessException | NotFoundException e) {
             throw new RuntimeException(e);
         }
     }
@@ -82,7 +84,11 @@ public class UserDAOTests {
     void getUserNegative() {
         userDAO.createUser(user1);
         try {
-            Assertions.assertThrowsExactly(DataAccessException.class, () -> userDAO.getUser("jane"));
+            if (userDAO.getClass() == MySQLUserDAO.class) {
+                Assertions.assertThrows(NotFoundException.class, () -> userDAO.getUser("jane"));
+            } else {
+                Assertions.assertThrows(DataAccessException.class, () -> userDAO.getUser("jane"));
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
