@@ -66,14 +66,17 @@ public class MySQLGameDAO implements GameDAO {
 
     @Override
     public void updateGame(GameData updatedGameData) throws DataAccessException {
-        var statement = "UPDATE Games SET whiteUsername =?, blackUsername =?, chessGame =? WHERE gameID =?";
+        var statement = "UPDATE Games SET whiteUsername =?, blackUsername =?, gameName =?, chessGame =? WHERE gameID =?";
         try (var conn = DatabaseManager.getConnection()) {
             try (var ps = conn.prepareStatement(statement)) {
                 ps.setString(1, updatedGameData.whiteUsername());
                 ps.setString(2, updatedGameData.blackUsername());
-                ps.setObject(3, new Gson().toJson(updatedGameData.game()));
-                ps.setInt(4, updatedGameData.gameID());
-                ps.executeUpdate();
+                ps.setObject(4, new Gson().toJson(updatedGameData.game()));
+                ps.setString(3, updatedGameData.gameName());
+                ps.setInt(5, updatedGameData.gameID());
+                if (ps.executeUpdate() != 1) {
+                    throw new SQLException("Error: game not found.");
+                }
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());

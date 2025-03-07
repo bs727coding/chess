@@ -53,7 +53,7 @@ public class GameDAOTests {
             gameDAO.createGame(gameData1);
             ArrayList<GameInformation> actual = gameDAO.listGames();
             ArrayList<GameInformation> expected = new ArrayList<>();
-            expected.add(new GameInformation(1, "null", "null","bob's game" ));
+            expected.add(new GameInformation(1, null, null,"bob's game"));
             Assertions.assertEquals(expected.getFirst(), actual.getFirst());
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -77,8 +77,8 @@ public class GameDAOTests {
             gameDAO.createGame(gameData2);
             ArrayList<GameInformation> actual = gameDAO.listGames();
             ArrayList<GameInformation> expected = new ArrayList<>();
-            expected.add(new GameInformation(1, "null", "null","bob's game"));
-            expected.add(new GameInformation(2, "null", "null","brick's game"));
+            expected.add(new GameInformation(1, null, null,"bob's game"));
+            expected.add(new GameInformation(2, null, null,"brick's game"));
             Assertions.assertEquals(expected, actual);
         } catch (Exception e) {
             throw new RuntimeException(e);
