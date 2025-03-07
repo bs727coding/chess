@@ -24,9 +24,9 @@ public class DatabaseManager {
             """,
             """
             CREATE TABLE IF NOT EXISTS  Authorization (
-              `authToken` TEXT NOT NULL,
+              `authToken` varchar(256) NOT NULL,
               `userName` varchar(256) NOT NULL,
-              PRIMARY KEY (`userName`),
+              PRIMARY KEY (`authToken`),
               INDEX (`userName`)
             )
             """,

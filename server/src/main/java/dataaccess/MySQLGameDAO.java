@@ -31,9 +31,7 @@ public class MySQLGameDAO implements GameDAO {
             preparedStatement.setObject(3, json);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException("Error: game already exists.");
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e.getMessage());
         }
     }
 

@@ -27,7 +27,7 @@ public class MySQLAuthDAO implements AuthDAO {
             preparedStatement.setString(2, authData.username());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new AlreadyTakenException("Error: game already exists.");
+            throw new AlreadyTakenException(e.getMessage());
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
@@ -49,8 +49,6 @@ public class MySQLAuthDAO implements AuthDAO {
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -65,8 +63,6 @@ public class MySQLAuthDAO implements AuthDAO {
             }
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
         }
     }
 
