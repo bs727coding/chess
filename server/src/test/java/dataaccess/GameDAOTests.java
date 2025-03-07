@@ -4,8 +4,6 @@ import chess.ChessGame;
 import model.GameData;
 import model.GameInformation;
 import org.junit.jupiter.api.*;
-
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class GameDAOTests {
@@ -13,25 +11,22 @@ public class GameDAOTests {
     private GameData gameData1;
     private GameData gameData2;
 
-    @BeforeEach
-    void setup() {
-        //gameDAO = new MemoryGameDAO();
-        var statement = "DROP DATABASE IF EXISTS chess";
-        try (var conn = DatabaseManager.getConnection()) {
-            var preparedStatement = conn.prepareStatement(statement);
-            preparedStatement.executeUpdate();
-        } catch (DataAccessException | SQLException e) {
-            throw new RuntimeException(e);
-        }
+    @BeforeAll
+    static void initialSetup() {
         try {
             DatabaseManager.createDatabase();
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    @BeforeEach
+    void setup() {
         gameDAO = new MySQLGameDAO();
+        gameDAO.clearGameData();
         gameData1 = new GameData(1, "bob", "jane","bob's game", new ChessGame());
         gameData2 = new GameData(2, "brick", "nils", "brick's game", new ChessGame());
-
     }
 
     @Test
