@@ -16,7 +16,7 @@ public class GameDAOTests {
     @BeforeEach
     void setup() {
         //gameDAO = new MemoryGameDAO();
-        var statement = "DROP DATABASE chess";
+        var statement = "DROP DATABASE IF EXISTS chess";
         try (var conn = DatabaseManager.getConnection()) {
             var preparedStatement = conn.prepareStatement(statement);
             preparedStatement.executeUpdate();

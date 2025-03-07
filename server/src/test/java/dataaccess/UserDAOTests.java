@@ -5,7 +5,6 @@ import org.junit.jupiter.api.*;
 import service.AlreadyTakenException;
 import service.NotFoundException;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class UserDAOTests {
@@ -13,11 +12,20 @@ public class UserDAOTests {
     private UserData user1;
     private UserData user2;
 
-    @BeforeEach
+    @BeforeAll
+    static void initialSetup() {
+        try {
+            DatabaseManager.createDatabase();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /*@BeforeEach
     void setup() {
         //userDAO = new MemoryUserDAO();
         userDAO = new MySQLUserDAO(); //change to MemoryUserDAO if desired
-        var statement = "DROP DATABASE chess";
+        var statement = "DROP DATABASE IF EXISTS chess";
         try (var conn = DatabaseManager.getConnection()) {
             var preparedStatement = conn.prepareStatement(statement);
             preparedStatement.executeUpdate();
@@ -31,7 +39,17 @@ public class UserDAOTests {
         }
         user1 = new UserData("bob", "bob's password", "bob@byu.edu");
         user2 = new UserData("jane", "jane's password", "jane@byu.edu");
+    }*/
+
+
+    @BeforeEach
+    void setup() {
+        userDAO = new MySQLUserDAO();
+        userDAO.clearUserData();
+        user1 = new UserData("bob", "bob's password", "bob@byu.edu");
+        user2 = new UserData("jane", "jane's password", "jane@byu.edu");
     }
+
 
     @Test
     void clearUserDataPositive() {
