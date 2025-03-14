@@ -13,9 +13,11 @@ import static ui.EscapeSequences.*;
 
 public class DrawBoard {
     private final ChessBoard board;
+    private boolean boardColor;  //false is dark
 
     public DrawBoard(ChessBoard board) {
         this.board = board;
+        boardColor = false;
     }
 
     public static void main(String[] args) {
@@ -26,17 +28,18 @@ public class DrawBoard {
         DrawBoard drawBoard = new DrawBoard(board);
         drawBoard.drawBoard(out, ChessGame.TeamColor.WHITE);
         out.println();
-        //drawBoard(out, ChessGame.TeamColor.Black);
-        //out.println();
-        //drawBoard(out, null); //test observer and make sure it shows white's perspective
+        drawBoard.drawBoard(out, ChessGame.TeamColor.BLACK);
+        out.println();
+        drawBoard.drawBoard(out, null); //test observer and make sure it shows white's perspective
     }
 
     public void drawBoard(PrintStream out, ChessGame.TeamColor color) {
-        if (Objects.requireNonNull(color) == ChessGame.TeamColor.BLACK) {
-            drawBoardBlack(out);
-        } else {
+        if (color == null || color == ChessGame.TeamColor.WHITE) {
             drawBoardWhite(out);
+        } else {
+            drawBoardBlack(out);
         }
+        out.print(RESET_BG_COLOR);
     }
 
     private void drawBoardWhite(PrintStream out) {
@@ -57,39 +60,41 @@ public class DrawBoard {
 
     private void drawWhiteRowGivenNumber(PrintStream out, int row) {
         //even rows start with white square
-        out.print(SET_BG_COLOR_BLUE);
-        out.print(SET_TEXT_COLOR_WHITE);
         drawNumber(out, row);
         for (int i = 1; i < 9; i++) {
-            if (i % 2 == 0) { //even column
-                out.print(SET_BG_COLOR_WHITE);
+            if ((i + row) % 2 == 0) { //even column
+                out.print(SET_BG_COLOR_LIGHT_GREY);
+                boardColor = true;
             } else {
-                out.print(SET_BG_COLOR_BLACK);
+                out.print(SET_BG_COLOR_DARK_GREY);
+                boardColor = false;
             }
             findChessPiece(out, row, i);
         }
         out.print(SET_BG_COLOR_BLUE);
         out.print(SET_TEXT_COLOR_WHITE);
         drawNumber(out, row);
+        out.print(RESET_BG_COLOR);
         out.println();
     }
 
     private void drawBlackRowGivenNumber(PrintStream out, int row) {
         //odd rows start with white square
-        out.print(SET_BG_COLOR_BLUE);
-        out.print(SET_TEXT_COLOR_WHITE);
         drawNumber(out, row);
-        for (int i = 9; i > 0; i--) {
-            if (i % 2 == 0) { //even column
-                out.print(SET_BG_COLOR_BLACK);
+        for (int i = 8; i > 0; i--) {
+            if ((i + row) % 2 == 0) { //even column
+                out.print(SET_BG_COLOR_DARK_GREY);
+                boardColor = false;
             } else {
-                out.print(SET_BG_COLOR_WHITE);
+                out.print(SET_BG_COLOR_LIGHT_GREY);
+                boardColor = true;
             }
             findChessPiece(out, row, i);
         }
         out.print(SET_BG_COLOR_BLUE);
         out.print(SET_TEXT_COLOR_WHITE);
         drawNumber(out, row);
+        out.print(RESET_BG_COLOR);
         out.println();
     }
 
@@ -99,10 +104,11 @@ public class DrawBoard {
         out.print(EMPTY);
         char letter = 'a';
         for (int i = 1; i < 9; i++) {
-            out.print(" " + letter + " ");
+            out.print(SPACE + letter + SPACE);
             letter++;
         }
         out.print(EMPTY);
+        out.print(RESET_BG_COLOR);
         out.println();
     }
 
@@ -112,10 +118,11 @@ public class DrawBoard {
         out.print(EMPTY);
         char letter = 'h';
         for (int i = 1; i < 9; i++) {
-            out.print(" " + letter + " ");
+            out.print(SPACE + letter + SPACE);
             letter--;
         }
         out.print(EMPTY);
+        out.print(RESET_BG_COLOR);
         out.println();
     }
 
@@ -124,24 +131,21 @@ public class DrawBoard {
         drawChessPiece(out, board.getPiece(new ChessPosition(row, col)));
     }
 
-    private static void drawChessPiece(PrintStream out, ChessPiece piece) {
+    private void drawChessPiece(PrintStream out, ChessPiece piece) {
         if (piece == null) {
-            out.print(EMPTY);
-        }
-        else if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-            out.print(SET_TEXT_COLOR_LIGHT_GREY);
-            out.print(" ");
-            switch (piece.getPieceType()) {
-                case PAWN -> out.print(WHITE_PAWN);
-                case KING -> out.print(WHITE_KING);
-                case QUEEN -> out.print(WHITE_QUEEN);
-                case BISHOP -> out.print(WHITE_BISHOP);
-                case ROOK -> out.print(WHITE_ROOK);
-                case KNIGHT -> out.print(WHITE_KNIGHT);
-                default -> out.print(EMPTY);
+            if (boardColor) {
+                out.print(SET_TEXT_COLOR_LIGHT_GREY);
+            } else {
+                out.print(SET_TEXT_COLOR_DARK_GREY);
             }
-        } else if (piece.getTeamColor() == ChessGame.TeamColor.BLACK) { //Black
-            out.print(SET_TEXT_COLOR_DARK_GREY);
+            out.print(BLACK_KNIGHT);
+        }
+        else {
+            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                out.print(SET_TEXT_COLOR_GREEN);
+            } else { //Black
+                out.print(SET_TEXT_COLOR_BLUE);
+            }
             switch (piece.getPieceType()) {
                 case PAWN -> out.print(BLACK_PAWN);
                 case KING -> out.print(BLACK_KING);
@@ -152,12 +156,11 @@ public class DrawBoard {
                 default -> out.print(EMPTY);
             }
         }
-        out.print(" ");
     }
 
     private static void drawNumber(PrintStream out, int number) {
-        out.print(SET_BG_COLOR_WHITE);
-        out.print(SET_TEXT_COLOR_BLACK);
+        out.print(SET_BG_COLOR_BLUE);
+        out.print(SET_TEXT_COLOR_WHITE);
         out.print(" " + number + " ");
     }
 }
