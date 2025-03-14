@@ -7,7 +7,6 @@ import chess.ChessPosition;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 import static ui.EscapeSequences.*;
 
@@ -102,11 +101,8 @@ public class DrawBoard {
         out.print(SET_BG_COLOR_BLUE);
         out.print(SET_TEXT_COLOR_WHITE);
         out.print(EMPTY);
-        char letter = 'a';
-        for (int i = 1; i < 9; i++) {
-            out.print(SPACE + letter + SPACE);
-            letter++;
-        }
+        out.print(" " + 'a' + "  " + 'b' + SPACE + " " + 'c' + "   " + 'd' + "  " + 'e' + SPACE + " " + 'f' +
+                "   " + 'g' + "  " + 'h' + " ");
         out.print(EMPTY);
         out.print(RESET_BG_COLOR);
         out.println();
@@ -116,11 +112,8 @@ public class DrawBoard {
         out.print(SET_BG_COLOR_BLUE);
         out.print(SET_TEXT_COLOR_WHITE);
         out.print(EMPTY);
-        char letter = 'h';
-        for (int i = 1; i < 9; i++) {
-            out.print(SPACE + letter + SPACE);
-            letter--;
-        }
+        out.print(" " + 'h' + "  " + 'g' + SPACE + " " + 'f' + "   " + 'e' + "  " + 'd' + SPACE + " " + 'c' +
+                "   " + 'b' + "  " + 'a' + " ");
         out.print(EMPTY);
         out.print(RESET_BG_COLOR);
         out.println();
