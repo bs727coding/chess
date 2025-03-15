@@ -10,6 +10,7 @@ public class DrawMenu {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
         drawPreLoginMenu(out);
+        out.println();
         drawPostLoginMenu(out);
     }
 

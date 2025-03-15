@@ -9,6 +9,16 @@ import spark.*;
 
 public class Server {
 
+    private UserDAO userDAO;
+    private AuthDAO authDAO;
+    private GameDAO gameDAO;
+
+    public Server() {
+        UserDAO userDAO = new MySQLUserDAO();
+        AuthDAO authDAO = new MySQLAuthDAO();
+        GameDAO gameDAO = new MySQLGameDAO();
+    }
+
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
@@ -19,10 +29,6 @@ public class Server {
         } catch (DataAccessException e) {
             throw new RuntimeException(e);
         }
-
-        UserDAO userDAO = new MySQLUserDAO();
-        AuthDAO authDAO = new MySQLAuthDAO();
-        GameDAO gameDAO = new MySQLGameDAO();
         UserService userService = new UserService(userDAO, authDAO);
         AuthService authService = new AuthService(authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
@@ -44,5 +50,11 @@ public class Server {
     public void stop() {
         Spark.stop();
         Spark.awaitStop();
+    }
+
+    public void clearDatabase() {
+        userDAO.clearUserData();
+        authDAO.clearAuthData();
+        gameDAO.clearGameData();
     }
 }
