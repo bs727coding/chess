@@ -28,10 +28,8 @@ class GameServiceTest {
         try {
             RegisterResult registerResult = userService.register(new RegisterRequest("bob", "q21",
                     "s"));
-            CreateGameResult game1 = gameService.createGame
-                    (new CreateGameRequest(registerResult.authToken(), "bob's game"));
-            CreateGameResult game2 = gameService.createGame
-                    (new CreateGameRequest(registerResult.authToken(), "jane's game"));
+            gameService.createGame(new CreateGameRequest(registerResult.authToken(), "bob's game"));
+            gameService.createGame(new CreateGameRequest(registerResult.authToken(), "jane's game"));
             ArrayList<GameInformation> actual = gameService.listGames
                     (new ListGamesRequest(registerResult.authToken())).games();
             GameInformation game1Expected = new GameInformation
@@ -79,7 +77,8 @@ class GameServiceTest {
             CreateGameRequest createGameRequest = new CreateGameRequest(registerResult.authToken(),
                     "testGame");
             gameService.createGame(createGameRequest);
-            Assertions.assertThrows(ServiceException.class, () -> gameService.createGame(new CreateGameRequest(registerResult.authToken(), null)));
+            Assertions.assertThrows(ServiceException.class, () -> gameService.createGame(new CreateGameRequest
+                    (registerResult.authToken(), null)));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -127,7 +126,7 @@ class GameServiceTest {
     @Test
     void clearGamesPositive() {
         try {
-            RegisterResult registerResult = userService.register(new RegisterRequest("hfgd", "q21",
+            RegisterResult registerResult = userService.register(new RegisterRequest("hello", "q21",
                     "s"));
             gameService.createGame(new CreateGameRequest(registerResult.authToken(), "bob's game"));
             gameService.createGame(new CreateGameRequest(registerResult.authToken(), "jane's game"));
