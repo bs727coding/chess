@@ -42,7 +42,5 @@ public class ServerFacade {
 
     }
 
-    public void clear() {
 
-    }
 }
