@@ -9,14 +9,14 @@ import spark.*;
 
 public class Server {
 
-    private UserDAO userDAO;
-    private AuthDAO authDAO;
-    private GameDAO gameDAO;
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
+    private final GameDAO gameDAO;
 
     public Server() {
-        UserDAO userDAO = new MySQLUserDAO();
-        AuthDAO authDAO = new MySQLAuthDAO();
-        GameDAO gameDAO = new MySQLGameDAO();
+        userDAO = new MySQLUserDAO();
+        authDAO = new MySQLAuthDAO();
+        gameDAO = new MySQLGameDAO();
     }
 
     public int run(int desiredPort) {

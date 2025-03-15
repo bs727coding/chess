@@ -1,12 +1,6 @@
 package net;
 
-
-import java.io.*;
-import java.net.*;
-
-import exception.ErrorResponse;
 import exception.ResponseException;
-import com.google.gson.Gson;
 import result.*;
 import request.*;
 
