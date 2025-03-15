@@ -7,7 +7,7 @@ import java.io.*;
 import java.net.*;
 
 public class ClientCommunicator {
-    private static <T> T makeRequest(String serverUrl, String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    public static <T> T makeRequest(String serverUrl, String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
