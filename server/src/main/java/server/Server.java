@@ -57,4 +57,8 @@ public class Server {
         authDAO.clearAuthData();
         gameDAO.clearGameData();
     }
+
+    public int port() {
+        return Spark.port();
+    }
 }
