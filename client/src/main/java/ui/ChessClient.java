@@ -1,13 +1,16 @@
 package ui;
 
+import chess.ChessGame;
 import exception.ResponseException;
+import model.GameInformation;
 import net.ServerFacade;
 import request.*;
 import result.*;
-import webSocketMessages.Notification;
 import websocket.NotificationHandler;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class ChessClient {
     private final ServerFacade server;
@@ -15,11 +18,15 @@ public class ChessClient {
     private final NotificationHandler repl;
     private State state = State.PRE_LOGIN;
     private String authToken;
+    private HashMap<Integer, Integer> gameIDMap;
+    private HashMap<Integer, Integer> gameValueMap;
 
     public ChessClient(String url, NotificationHandler notificationHandler) {
         server = new ServerFacade(url);
         this.url = url;
         this.repl = notificationHandler;
+        gameIDMap = new HashMap<>();
+        gameValueMap = new HashMap<>();
     }
 
     public String eval(String input) {
@@ -77,20 +84,64 @@ public class ChessClient {
     }
 
     public String logout() throws ResponseException {
-
-        authToken = null;
+        if (authToken != null) {
+            server.logout(new LogoutRequest(authToken));
+            authToken = null;
+            state = State.PRE_LOGIN;
+            return "Successfully logged out.";
+        } else {
+            throw new ResponseException(400, "Error: you must be logged in.");
+        }
     }
 
     public String createGame(String... params) throws ResponseException {
-
+        if (params.length >= 1 && authToken != null) {
+            gameIDMap.put(gameIDMap.size() + 1,
+                    server.createGame(new CreateGameRequest(authToken, params[0])).gameID());
+            gameIDMap.put(server.createGame(new CreateGameRequest(authToken, params[0])).gameID(),
+                    gameIDMap.size() + 1);
+            return String.format("You created a game with the name %s.", params[0]);
+        } else if (params.length < 1) {
+            throw new ResponseException(401, "Expected: <game_name>");
+        } else {
+            throw new ResponseException(400, "Error: you must be logged in.");
+        }
     }
 
     public String listGames() throws ResponseException {
-
+        if (authToken != null) {
+            ArrayList<GameInformation> result = server.listGames(new ListGamesRequest(authToken)).games();
+            StringBuilder sb = new StringBuilder();
+            for (GameInformation game : result) {
+                int gameNiceID = gameIDMap.get(game.gameID());
+                sb.append(String.format("%d: %s", gameNiceID, game.gameName()));
+            }
+            return sb.toString();
+        } else {
+            throw new ResponseException(400, "Error: you must be logged in.");
+        }
     }
 
     public String joinGame(String... params) throws ResponseException {
-
+        if (params.length >= 2 && authToken != null) {
+            int niceGameID = Integer.parseInt(params[0]); //game ID first, then player color
+            Integer actualGameID = gameIDMap.get(niceGameID);
+            ChessGame.TeamColor color;
+            if (actualGameID == null) {
+                throw new ResponseException(401, "Error: game not found. Provide a new ID.");
+            }
+            switch (params[1]) {
+                case "black", "Black" -> color = ChessGame.TeamColor.BLACK;
+                case "white", "White" -> color = ChessGame.TeamColor.WHITE;
+                default -> throw new ResponseException(401, "Error. Invalid team color provided.");
+            }
+            server.joinGame(new JoinGameRequest(authToken, color, actualGameID));
+            return String.format("Successfully joined game %s as %s", params[0], params[1]);
+        } else if (params.length < 2) {
+            throw new ResponseException(401, "Expected: <game ID>, <player_color>.");
+        } else {
+            throw new ResponseException(400, "Error: you must be logged in.");
+        }
     }
 
     public String observeGame(String... params) throws ResponseException {
