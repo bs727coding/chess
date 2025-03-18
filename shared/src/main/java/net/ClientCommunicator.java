@@ -2,10 +2,6 @@ package net;
 
 import exception.ResponseException;
 import com.google.gson.Gson;
-import request.CreateGameRequest;
-import request.JoinGameRequest;
-import request.ListGamesRequest;
-import request.LogoutRequest;
 
 import java.io.*;
 import java.net.*;

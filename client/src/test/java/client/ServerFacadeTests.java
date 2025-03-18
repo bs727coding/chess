@@ -8,8 +8,6 @@ import org.junit.jupiter.api.*;
 import request.*;
 import result.*;
 import server.Server;
-import service.AlreadyTakenException;
-import service.ServiceException;
 
 import java.util.ArrayList;
 
