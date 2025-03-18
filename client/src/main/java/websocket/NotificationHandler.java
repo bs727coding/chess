@@ -2,6 +2,8 @@ package websocket;
 
 import webSocketMessages.Notification;
 
+import java.io.PrintStream;
+
 public interface NotificationHandler {
-    void notify(Notification notification);
+    void notify(PrintStream out, Notification notification);
 }

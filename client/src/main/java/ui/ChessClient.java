@@ -14,17 +14,15 @@ import java.util.HashMap;
 
 public class ChessClient {
     private final ServerFacade server;
-    private final String url;
-    private final NotificationHandler repl;
+    //private final NotificationHandler Repl;
     private State state = State.PRE_LOGIN;
     private String authToken;
-    private HashMap<Integer, Integer> gameIDMap;
-    private HashMap<Integer, Integer> gameValueMap;
+    private final HashMap<Integer, Integer> gameIDMap;
+    private final HashMap<Integer, Integer> gameValueMap;
 
-    public ChessClient(String url, NotificationHandler notificationHandler) {
+    public ChessClient(String url) { //add notification handler in phase 6
         server = new ServerFacade(url);
-        this.url = url;
-        this.repl = notificationHandler;
+        //this.Repl = notificationHandler;
         gameIDMap = new HashMap<>();
         gameValueMap = new HashMap<>();
     }
@@ -98,7 +96,7 @@ public class ChessClient {
         if (params.length >= 1 && authToken != null) {
             gameIDMap.put(gameIDMap.size() + 1,
                     server.createGame(new CreateGameRequest(authToken, params[0])).gameID());
-            gameIDMap.put(server.createGame(new CreateGameRequest(authToken, params[0])).gameID(),
+            gameValueMap.put(server.createGame(new CreateGameRequest(authToken, params[0])).gameID(),
                     gameIDMap.size() + 1);
             return String.format("You created a game with the name %s.", params[0]);
         } else if (params.length < 1) {
@@ -113,7 +111,7 @@ public class ChessClient {
             ArrayList<GameInformation> result = server.listGames(new ListGamesRequest(authToken)).games();
             StringBuilder sb = new StringBuilder();
             for (GameInformation game : result) {
-                int gameNiceID = gameIDMap.get(game.gameID());
+                int gameNiceID = gameValueMap.get(game.gameID());
                 sb.append(String.format("%d: %s", gameNiceID, game.gameName()));
             }
             return sb.toString();
