@@ -134,6 +134,29 @@ public class Handler {
         }
     }
 
+    public Object observeGameHandler(Request req, Response res) {
+        try {
+            String authToken = req.headers("authorization");
+            int gameID = getBody(req, Integer.class);
+            ObserveGameRequest observeGameRequest = new ObserveGameRequest(authToken, gameID);
+            ObserveGameResult observeGameResult = gameService.observeGame(observeGameRequest);
+            res.status(200);
+            return new Gson().toJson(observeGameResult);
+        } catch (ServiceException e) {
+            res.status(400);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        } catch (DataAccessException e) {
+            res.status(401);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        } catch (AlreadyTakenException e) {
+            res.status(403);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        } catch (Exception e) {
+            res.status(500);
+            return new Gson().toJson(new ErrorResult(e.getMessage()));
+        }
+    }
+
     public Object clearHandler(Request req, Response res) {
         try {
             userService.clear();

@@ -135,8 +135,9 @@ public class ChessClient {
                 case "white", "White" -> color = ChessGame.TeamColor.WHITE;
                 default -> throw new ResponseException(401, "Error. Invalid team color provided.");
             }
-            server.joinGame(new JoinGameRequest(authToken, color, actualGameID));
-            //DrawBoard.drawBoard(System.out, color);
+            JoinGameResult result = server.joinGame(new JoinGameRequest(authToken, color, actualGameID));
+            DrawBoard drawBoard = new DrawBoard(result.gameData().game().getBoard());
+            drawBoard.drawBoard(System.out, color);
             return String.format("Successfully joined game %s as %s", params[0], params[1]);
         } else if (params.length < 2) {
             throw new ResponseException(401, "Expected: <game ID>, <player_color>.");
@@ -152,9 +153,10 @@ public class ChessClient {
             if (actualGameID == null) {
                 throw new ResponseException(401, "Error: game not found. Provide a new ID.");
             }
-            server.joinGame(new JoinGameRequest(authToken, null, actualGameID));
-            //DrawBoard.drawBoard(System.out, ChessGame.TeamColor.WHITE);
-            return "";
+            ObserveGameResult result = server.observeGame(new ObserveGameRequest(authToken, actualGameID));
+            DrawBoard drawBoard = new DrawBoard(result.gameData().game().getBoard());
+            drawBoard.drawBoard(System.out, ChessGame.TeamColor.WHITE);
+            return String.format("Successfully joined game %s as observer.", niceGameID);
         } else if (params.length == 0) {
             throw new ResponseException(401, "Expected: <game ID>");
         } else {
@@ -165,11 +167,19 @@ public class ChessClient {
     public String help() {
         if (state == State.PRE_LOGIN) {
             return """
-                    
-                    """;
+                   help: displays options
+                   register <username> <password> <email>: registers a new user and logs them in
+                   login <username> <password>: logs a user in. Requires them to be registered first
+                   quit: exit the program
+                   """;
         } else if (state == State.POST_LOGIN) {
             return """
-                    
+                    help: displays options
+                    logout: logs out a user
+                    create_game <game_name>: creates a new game with the specified name
+                    play_game <game_ID>, <player_color>: joins an already created game with the color specified
+                    list_games: displays a list of games available to join
+                    observe_game <game_ID>: joins the specified game as an observer
                     """;
         } else {
             return "This prompt will be implemented in Phase 6."; //implement in Phase 6
