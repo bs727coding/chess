@@ -89,15 +89,14 @@ public class ServerFacadeTests {
                 "s"));
         serverFacade.createGame(new CreateGameRequest(registerResult.authToken(), "bob's game"));
         serverFacade.createGame(new CreateGameRequest(registerResult.authToken(), "jane's game"));
-        ArrayList<GameInformation> actual = serverFacade.listGames
-                (new ListGamesRequest(registerResult.authToken())).games();
+        ArrayList<GameInformation> actual = serverFacade.listGames(new ListGamesRequest(registerResult.authToken())).games();
         GameInformation game1Expected = new GameInformation
                 (59601, null, null, "bob's game");
         GameInformation game2Expected = new GameInformation
                 (59048, null, null, "jane's game");
         ArrayList<GameInformation> expected = new ArrayList<>();
-        expected.add(game1Expected);
         expected.add(game2Expected);
+        expected.add(game1Expected);
         Assertions.assertEquals(expected, actual);
     }
 
@@ -124,7 +123,7 @@ public class ServerFacadeTests {
         CreateGameRequest createGameRequest = new CreateGameRequest(registerResult.authToken(),
                 "testGame");
         serverFacade.createGame(createGameRequest);
-        Assertions.assertThrows(ServiceException.class, () -> serverFacade.createGame(new CreateGameRequest
+        Assertions.assertThrows(ResponseException.class, () -> serverFacade.createGame(new CreateGameRequest
                 (registerResult.authToken(), null)));
     }
 
@@ -155,7 +154,7 @@ public class ServerFacadeTests {
         CreateGameResult createGameResult = serverFacade.createGame(createGameRequest);
         serverFacade.joinGame(new JoinGameRequest
                 (registerResult1.authToken(), ChessGame.TeamColor.WHITE, createGameResult.gameID()));
-        Assertions.assertThrows(AlreadyTakenException.class, () -> serverFacade.joinGame(new JoinGameRequest
+        Assertions.assertThrows(ResponseException.class, () -> serverFacade.joinGame(new JoinGameRequest
                 (registerResult2.authToken(), ChessGame.TeamColor.WHITE, createGameResult.gameID())));
     }
 }

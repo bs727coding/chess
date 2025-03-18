@@ -77,7 +77,7 @@ public class Handler {
 
     public Object listGamesHandler(Request req, Response res) {
         try {
-            ListGamesResult listGamesResult = gameService.listGames(new ListGamesRequest(req.headers("authorization")));
+            ListGamesResult listGamesResult = gameService.listGames(new ListGamesRequest(req.headers("Authorization")));
             res.status(200);
             return new Gson().toJson(listGamesResult);
         } catch (DataAccessException e) {

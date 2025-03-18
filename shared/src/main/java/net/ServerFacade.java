@@ -30,7 +30,7 @@ public class ServerFacade {
     public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws ResponseException {
         var path = "/game";
         return ClientCommunicator.makeRequest(serverUrl, "GET", path, listGamesRequest.authToken(),
-                listGamesRequest, ListGamesResult.class);
+                null, ListGamesResult.class);
     }
 
     public CreateGameResult createGame(CreateGameRequest createGameRequest) throws ResponseException {
