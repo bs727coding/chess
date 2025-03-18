@@ -2,18 +2,25 @@ package net;
 
 import exception.ResponseException;
 import com.google.gson.Gson;
+import request.CreateGameRequest;
+import request.JoinGameRequest;
+import request.ListGamesRequest;
+import request.LogoutRequest;
 
 import java.io.*;
 import java.net.*;
 
 public class ClientCommunicator {
-    public static <T> T makeRequest(String serverUrl, String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    public static <T> T makeRequest(String serverUrl, String method, String path, String header, Object request,
+                                    Class<T> responseClass) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
-
+            if (header != null) {
+                http.setRequestProperty("Authorization", header);
+            }
             writeBody(request, http);
             http.connect();
             throwIfNotSuccessful(http);

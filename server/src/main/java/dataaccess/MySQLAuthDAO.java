@@ -35,6 +35,9 @@ public class MySQLAuthDAO implements AuthDAO {
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
+        if (authToken == null) {
+            throw new DataAccessException("Error: no authorization provided.");
+        }
         var statement = "SELECT authToken, username FROM Authorization WHERE `authToken` =?";
         try (var conn = DatabaseManager.getConnection()) {
             var preparedStatement = conn.prepareStatement(statement);
