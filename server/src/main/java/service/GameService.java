@@ -10,9 +10,11 @@ import model.GameInformation;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import request.ListGamesRequest;
+import request.ObserveGameRequest;
 import result.CreateGameResult;
 import result.JoinGameResult;
 import result.ListGamesResult;
+import result.ObserveGameResult;
 
 import java.util.ArrayList;
 
@@ -56,6 +58,24 @@ public class GameService {
         AuthData authData = authDAO.getAuth(joinGameRequest.authToken());
         String username = authData.username();
         GameData gameData = gameDAO.getGameData(joinGameRequest.gameID());
+        GameData updatedGameData = getUpdatedGameData(joinGameRequest, gameData, username);
+        gameDAO.updateGame(updatedGameData);
+        return new JoinGameResult(updatedGameData);
+    }
+
+    public ObserveGameResult observeGame(ObserveGameRequest observeGameRequest) throws ServiceException,
+            AlreadyTakenException, DataAccessException {
+        if (observeGameRequest.gameID() == 0) {
+            throw new ServiceException("Error: provide a gameID.");
+        }
+        if (observeGameRequest.authToken() == null) {
+            throw new ServiceException("Error: you must be logged in.");
+        }
+        authDAO.getAuth(observeGameRequest.authToken());
+        return new ObserveGameResult(gameDAO.getGameData(observeGameRequest.gameID()));
+    }
+
+    private static GameData getUpdatedGameData(JoinGameRequest joinGameRequest, GameData gameData, String username) {
         GameData updatedGameData;
         if (joinGameRequest.playerColor().equals(ChessGame.TeamColor.WHITE)) {
             if (gameData.whiteUsername() != null) {
@@ -72,8 +92,7 @@ public class GameService {
                         gameData.gameName(), gameData.game());
             }
         }
-        gameDAO.updateGame(updatedGameData);
-        return new JoinGameResult();
+        return updatedGameData;
     }
 
     public void clear() {

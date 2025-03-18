@@ -136,6 +136,7 @@ public class ChessClient {
                 default -> throw new ResponseException(401, "Error. Invalid team color provided.");
             }
             server.joinGame(new JoinGameRequest(authToken, color, actualGameID));
+            //DrawBoard.drawBoard(System.out, color);
             return String.format("Successfully joined game %s as %s", params[0], params[1]);
         } else if (params.length < 2) {
             throw new ResponseException(401, "Expected: <game ID>, <player_color>.");
@@ -145,7 +146,20 @@ public class ChessClient {
     }
 
     public String observeGame(String... params) throws ResponseException {
-
+        if (params.length >= 1 && authToken != null) {
+            int niceGameID = Integer.parseInt(params[0]); //game ID first, then player color
+            Integer actualGameID = gameIDMap.get(niceGameID);
+            if (actualGameID == null) {
+                throw new ResponseException(401, "Error: game not found. Provide a new ID.");
+            }
+            server.joinGame(new JoinGameRequest(authToken, null, actualGameID));
+            //DrawBoard.drawBoard(System.out, ChessGame.TeamColor.WHITE);
+            return "";
+        } else if (params.length == 0) {
+            throw new ResponseException(401, "Expected: <game ID>");
+        } else {
+            throw new ResponseException(400, "Error: you must be logged in.");
+        }
     }
 
     public String help() {
