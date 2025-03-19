@@ -44,10 +44,4 @@ public class ServerFacade {
         return ClientCommunicator.makeRequest(serverUrl, "PUT", path, joinGameRequest.authToken(),
                 joinGameRequest, JoinGameResult.class);
     }
-
-    public ObserveGameResult observeGame(ObserveGameRequest observeGameRequest) throws ResponseException {
-        var path = "/observe";
-        return ClientCommunicator.makeRequest(serverUrl, "GET", path, observeGameRequest.authToken(),
-                observeGameRequest, ObserveGameResult.class);
-    }
 }

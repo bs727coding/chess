@@ -2,7 +2,6 @@ package ui;
 
 import chess.ChessBoard;
 import chess.ChessGame;
-import dataaccess.DataAccessException;
 import exception.ResponseException;
 import model.GameInformation;
 import net.ServerFacade;
@@ -20,13 +19,11 @@ public class ChessClient {
     private State state = State.PRE_LOGIN;
     private String authToken;
     private final HashMap<Integer, Integer> gameIDMap;
-    private final HashMap<Integer, Integer> gameValueMap;
 
     public ChessClient(String url) { //add notification handler in phase 6
         server = new ServerFacade(url);
         //this.Repl = notificationHandler;
         gameIDMap = new HashMap<>();
-        gameValueMap = new HashMap<>();
     }
 
     public String eval(String input) {
@@ -122,7 +119,6 @@ public class ChessClient {
             StringBuilder sb = new StringBuilder();
             for (GameInformation game : result) {
                 gameIDMap.put(gameIDMap.size() + 1, game.gameID());
-                gameValueMap.put(game.gameID(), gameIDMap.size());
                 int gameNiceID = gameIDMap.size();
                 String whiteUser = game.whiteUsername();
                 String blackUser = game.blackUsername();
@@ -132,7 +128,7 @@ public class ChessClient {
                 if (blackUser == null) {
                     blackUser = "empty";
                 }
-                sb.append(String.format("%d: %s. White user: %s, Black user: %s.", gameNiceID - 1, game.gameName(),
+                sb.append(String.format("%d: %s. White user: %s, Black user: %s.", gameNiceID, game.gameName(),
                         whiteUser, blackUser));
             }
             return sb.toString();
@@ -161,6 +157,8 @@ public class ChessClient {
                 return String.format("Successfully joined game %s as %s", params[0], params[1]);
             } catch (NumberFormatException e) {
                 throw new ResponseException(401, "Error: provide a number for the gameID.");
+            } catch (ResponseException e) {
+                throw new ResponseException(401, "Error: already taken.");
             }
         } else if (params.length < 2) {
             throw new ResponseException(401, "Expected: <game ID>, <player_color>.");
