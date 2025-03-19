@@ -62,11 +62,11 @@ public class DrawBoard {
         drawNumber(out, row);
         for (int i = 1; i < 9; i++) {
             if ((i + row) % 2 == 0) { //even column
-                out.print(SET_BG_COLOR_LIGHT_GREY);
-                boardColor = true;
-            } else {
                 out.print(SET_BG_COLOR_DARK_GREY);
                 boardColor = false;
+            } else {
+                out.print(SET_BG_COLOR_LIGHT_GREY);
+                boardColor = true;
             }
             findChessPiece(out, row, i);
         }

@@ -20,6 +20,7 @@ public class Repl implements NotificationHandler {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
         Server server = new Server();
+        server.clearDatabase();
         server.run(8080);
         Repl repl = new Repl("http://localhost:8080");
         repl.run(out);

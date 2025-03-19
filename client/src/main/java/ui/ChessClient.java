@@ -1,6 +1,8 @@
 package ui;
 
+import chess.ChessBoard;
 import chess.ChessGame;
+import dataaccess.DataAccessException;
 import exception.ResponseException;
 import model.GameInformation;
 import net.ServerFacade;
@@ -49,6 +51,9 @@ public class ChessClient {
                     default -> help();
                 };
             } else if (state == State.IN_GAME) {
+                if (cmd.equals("quit")) {
+                    return "quit";
+                }
                 return help(); //implement in phase 6
             } else {
                 state = State.PRE_LOGIN;
@@ -60,22 +65,30 @@ public class ChessClient {
     }
 
     public String register(String... params) throws ResponseException {
-        if (params.length >= 3) {
-            RegisterResult result = server.register(new RegisterRequest(params[0], params[1], params[2]));
-            authToken = result.authToken();
-            state = State.POST_LOGIN;
-            return String.format("You registered and signed in as %s.", params[0]);
+        if (params.length == 3) {
+            try {
+                RegisterResult result = server.register(new RegisterRequest(params[0], params[1], params[2]));
+                authToken = result.authToken();
+                state = State.POST_LOGIN;
+                return String.format("You registered and signed in as %s.", params[0]);
+            } catch (ResponseException ex) {
+                throw new ResponseException(400, "Error: already taken");
+            }
         } else {
             throw new ResponseException(400, "Expected: <username>, <password>, <email>");
         }
     }
 
     public String login(String... params) throws ResponseException {
-        if (params.length >= 2) {
-            LoginResult result = server.login(new LoginRequest(params[0], params[1]));
-            authToken = result.authToken();
-            state = State.POST_LOGIN;
-            return String.format("You signed in as %s.", params[0]);
+        if (params.length == 2) {
+            try {
+                LoginResult result = server.login(new LoginRequest(params[0], params[1]));
+                authToken = result.authToken();
+                state = State.POST_LOGIN;
+                return String.format("You signed in as %s.", params[0]);
+            } catch (ResponseException ex) {
+                throw new ResponseException(400, "Error: invalid username or password.");
+            }
         } else {
             throw new ResponseException(400, "Expected: <username>, <password>");
         }
@@ -94,10 +107,7 @@ public class ChessClient {
 
     public String createGame(String... params) throws ResponseException {
         if (params.length >= 1 && authToken != null) {
-            gameIDMap.put(gameIDMap.size() + 1,
-                    server.createGame(new CreateGameRequest(authToken, params[0])).gameID());
-            gameValueMap.put(server.createGame(new CreateGameRequest(authToken, params[0])).gameID(),
-                    gameIDMap.size() + 1);
+            server.createGame(new CreateGameRequest(authToken, params[0]));
             return String.format("You created a game with the name %s.", params[0]);
         } else if (params.length < 1) {
             throw new ResponseException(401, "Expected: <game_name>");
@@ -111,8 +121,19 @@ public class ChessClient {
             ArrayList<GameInformation> result = server.listGames(new ListGamesRequest(authToken)).games();
             StringBuilder sb = new StringBuilder();
             for (GameInformation game : result) {
-                int gameNiceID = gameValueMap.get(game.gameID());
-                sb.append(String.format("%d: %s", gameNiceID, game.gameName()));
+                gameIDMap.put(gameIDMap.size() + 1, game.gameID());
+                gameValueMap.put(game.gameID(), gameIDMap.size());
+                int gameNiceID = gameIDMap.size();
+                String whiteUser = game.whiteUsername();
+                String blackUser = game.blackUsername();
+                if (whiteUser == null) {
+                    whiteUser = "empty";
+                }
+                if (blackUser == null) {
+                    blackUser = "empty";
+                }
+                sb.append(String.format("%d: %s. White user: %s, Black user: %s.", gameNiceID - 1, game.gameName(),
+                        whiteUser, blackUser));
             }
             return sb.toString();
         } else {
@@ -122,21 +143,25 @@ public class ChessClient {
 
     public String joinGame(String... params) throws ResponseException {
         if (params.length >= 2 && authToken != null) {
-            int niceGameID = Integer.parseInt(params[0]); //game ID first, then player color
-            Integer actualGameID = gameIDMap.get(niceGameID);
-            ChessGame.TeamColor color;
-            if (actualGameID == null) {
-                throw new ResponseException(401, "Error: game not found. Provide a new ID.");
+            try {
+                int niceGameID = Integer.parseInt(params[0]); //game ID first, then player color
+                Integer actualGameID = gameIDMap.get(niceGameID);
+                ChessGame.TeamColor color;
+                if (actualGameID == null) {
+                    throw new ResponseException(401, "Error: game not found. Provide a new ID.");
+                }
+                switch (params[1]) {
+                    case "black", "Black" -> color = ChessGame.TeamColor.BLACK;
+                    case "white", "White" -> color = ChessGame.TeamColor.WHITE;
+                    default -> throw new ResponseException(401, "Error. Invalid team color provided.");
+                }
+                JoinGameResult result = server.joinGame(new JoinGameRequest(authToken, color, actualGameID));
+                DrawBoard drawBoard = new DrawBoard(result.gameData().game().getBoard());
+                drawBoard.drawBoard(System.out, color);
+                return String.format("Successfully joined game %s as %s", params[0], params[1]);
+            } catch (NumberFormatException e) {
+                throw new ResponseException(401, "Error: provide a number for the gameID.");
             }
-            switch (params[1]) {
-                case "black", "Black" -> color = ChessGame.TeamColor.BLACK;
-                case "white", "White" -> color = ChessGame.TeamColor.WHITE;
-                default -> throw new ResponseException(401, "Error. Invalid team color provided.");
-            }
-            JoinGameResult result = server.joinGame(new JoinGameRequest(authToken, color, actualGameID));
-            DrawBoard drawBoard = new DrawBoard(result.gameData().game().getBoard());
-            drawBoard.drawBoard(System.out, color);
-            return String.format("Successfully joined game %s as %s", params[0], params[1]);
         } else if (params.length < 2) {
             throw new ResponseException(401, "Expected: <game ID>, <player_color>.");
         } else {
@@ -146,15 +171,21 @@ public class ChessClient {
 
     public String observeGame(String... params) throws ResponseException {
         if (params.length >= 1 && authToken != null) {
-            int niceGameID = Integer.parseInt(params[0]); //game ID first, then player color
-            Integer actualGameID = gameIDMap.get(niceGameID);
-            if (actualGameID == null) {
-                throw new ResponseException(401, "Error: game not found. Provide a new ID.");
+            try {
+                int niceGameID = Integer.parseInt(params[0]); //game ID first, then player color
+                Integer actualGameID = gameIDMap.get(niceGameID);
+                if (actualGameID == null) {
+                    throw new ResponseException(401, "Error: game not found. Provide a new ID.");
+                }
+                //ObserveGameResult result = server.observeGame(new ObserveGameRequest(authToken, actualGameID));
+                ChessBoard board = new ChessBoard();
+                board.resetBoard();
+                DrawBoard drawBoard = new DrawBoard(board);
+                drawBoard.drawBoard(System.out, ChessGame.TeamColor.WHITE);
+                return String.format("Successfully joined game %s as observer.", niceGameID);
+            } catch (NumberFormatException e) {
+                throw new ResponseException(401, "Error: provide a number for the gameID.");
             }
-            ObserveGameResult result = server.observeGame(new ObserveGameRequest(authToken, actualGameID));
-            DrawBoard drawBoard = new DrawBoard(result.gameData().game().getBoard());
-            drawBoard.drawBoard(System.out, ChessGame.TeamColor.WHITE);
-            return String.format("Successfully joined game %s as observer.", niceGameID);
         } else if (params.length == 0) {
             throw new ResponseException(401, "Expected: <game ID>");
         } else {
