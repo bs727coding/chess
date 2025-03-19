@@ -7,7 +7,6 @@ import model.GameInformation;
 import net.ServerFacade;
 import request.*;
 import result.*;
-//import websocket.NotificationHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,14 +14,12 @@ import java.util.HashMap;
 
 public class ChessClient {
     private final ServerFacade server;
-    //private final NotificationHandler Repl;
     private State state = State.PRE_LOGIN;
     private String authToken;
     private final HashMap<Integer, Integer> gameIDMap;
 
     public ChessClient(String url) { //add notification handler in phase 6
         server = new ServerFacade(url);
-        //this.Repl = notificationHandler;
         gameIDMap = new HashMap<>();
     }
 

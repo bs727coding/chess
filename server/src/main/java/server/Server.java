@@ -22,6 +22,7 @@ public class Server {
     public static void main(String[] args) {
         Server server = new Server();
         server.run(8080);
+        server.clearDatabase();
     }
 
     public int run(int desiredPort) {
