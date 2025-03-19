@@ -19,6 +19,11 @@ public class Server {
         gameDAO = new MySQLGameDAO();
     }
 
+    public static void main(String[] args) {
+        Server server = new Server();
+        server.run(8080);
+    }
+
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
