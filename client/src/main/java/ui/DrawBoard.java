@@ -61,14 +61,7 @@ public class DrawBoard {
         //even rows start with white square
         drawNumber(out, row);
         for (int i = 1; i < 9; i++) {
-            if ((i + row) % 2 == 0) { //even column
-                out.print(SET_BG_COLOR_DARK_GREY);
-                boardColor = false;
-            } else {
-                out.print(SET_BG_COLOR_LIGHT_GREY);
-                boardColor = true;
-            }
-            findChessPiece(out, row, i);
+            drawInnerRow(out, row, i);
         }
         out.print(SET_BG_COLOR_BLUE);
         out.print(SET_TEXT_COLOR_WHITE);
@@ -81,20 +74,24 @@ public class DrawBoard {
         //odd rows start with white square
         drawNumber(out, row);
         for (int i = 8; i > 0; i--) {
-            if ((i + row) % 2 == 0) { //even column
-                out.print(SET_BG_COLOR_DARK_GREY);
-                boardColor = false;
-            } else {
-                out.print(SET_BG_COLOR_LIGHT_GREY);
-                boardColor = true;
-            }
-            findChessPiece(out, row, i);
+            drawInnerRow(out, row, i);
         }
         out.print(SET_BG_COLOR_BLUE);
         out.print(SET_TEXT_COLOR_WHITE);
         drawNumber(out, row);
         out.print(RESET_BG_COLOR);
         out.println();
+    }
+
+    private void drawInnerRow(PrintStream out, int row, int i) {
+        if ((i + row) % 2 == 0) { //even column
+            out.print(SET_BG_COLOR_DARK_GREY);
+            boardColor = false;
+        } else {
+            out.print(SET_BG_COLOR_LIGHT_GREY);
+            boardColor = true;
+        }
+        findChessPiece(out, row, i);
     }
 
     private static void drawWhiteHeader(PrintStream out) {
