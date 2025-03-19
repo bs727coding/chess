@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
+import server.Server;
 
 public class Repl implements NotificationHandler {
     private final ChessClient client;
@@ -18,7 +19,9 @@ public class Repl implements NotificationHandler {
     public static void main(String[] args) {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
-        Repl repl = new Repl("localhost:8080");
+        Server server = new Server();
+        server.run(8080);
+        Repl repl = new Repl("http://localhost:8080");
         repl.run(out);
     }
 
@@ -40,6 +43,7 @@ public class Repl implements NotificationHandler {
             }
         }
         out.println();
+        System.exit(0);
         //implement Repl logic here
     }
 
