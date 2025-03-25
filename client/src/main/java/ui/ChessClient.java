@@ -45,10 +45,14 @@ public class ChessClient {
                     default -> help();
                 };
             } else if (state == State.IN_GAME) {
-                if (cmd.equals("quit")) {
-                    return "quit";
-                }
-                return help(); //implement in phase 6
+                return switch (cmd) {
+                    case "redraw_board" -> redrawChessBoard();
+                    case "leave" -> leave();
+                    case "make_move" -> makeMove(params);
+                    case "resign" -> resign(); //require confirmation
+                    case "highlight_moves" -> highlightMoves(params);
+                    default -> help();
+                };
             } else {
                 state = State.PRE_LOGIN;
                 return ("Unexpected error. You have been signed out.");
@@ -149,6 +153,7 @@ public class ChessClient {
                     default -> throw new ResponseException(401, "Error. Invalid team color provided.");
                 }
                 JoinGameResult result = server.joinGame(new JoinGameRequest(authToken, color, actualGameID));
+                state = State.IN_GAME;
                 DrawBoard drawBoard = new DrawBoard(result.gameData().game().getBoard());
                 drawBoard.drawBoard(System.out, color);
                 return String.format("Successfully joined game %s as %s", params[0], params[1]);
@@ -172,7 +177,6 @@ public class ChessClient {
                 if (actualGameID == null) {
                     throw new ResponseException(401, "Error: game not found. Provide a new ID.");
                 }
-                //ObserveGameResult result = server.observeGame(new ObserveGameRequest(authToken, actualGameID));
                 ChessBoard board = new ChessBoard();
                 board.resetBoard();
                 DrawBoard drawBoard = new DrawBoard(board);
@@ -183,6 +187,50 @@ public class ChessClient {
             }
         } else if (params.length == 0) {
             throw new ResponseException(401, "Expected: <game ID>");
+        } else {
+            throw new ResponseException(400, "Error: you must be logged in.");
+        }
+    }
+
+    public String redrawChessBoard() throws ResponseException {
+        if (authToken != null) {
+            return null; //toDo: implement
+        } else {
+            throw new ResponseException(400, "Error: you must be logged in.");
+        }
+    }
+
+    public String leave() throws ResponseException {
+        if (authToken != null) { //state change
+            return null; //toDo: implement
+        } else {
+            throw new ResponseException(400, "Error: you must be logged in.");
+        }
+    }
+
+    public String resign() throws ResponseException {
+        if (authToken != null) { //remember to confirm
+            return null; //toDo: implement
+        } else {
+            throw new ResponseException(400, "Error: you must be logged in.");
+        }
+    }
+
+    public String highlightMoves(String... params) {
+        if (params.length == 1 && authToken != null) { //parse to make sure valid position given
+            return null; //toDo: implement
+        } else if (params.length != 1) {
+            throw new ResponseException(401, "Expected: <chess_position>");
+        } else {
+            throw new ResponseException(400, "Error: you must be logged in.");
+        }
+    }
+
+    public String makeMove(String... params) {
+        if (params.length == 1 && authToken != null) { //parse to make sure valid move format given
+            return null; //toDo: implement
+        } else if (params.length != 1) {
+            throw new ResponseException(401, "Expected: <chess_move>");
         } else {
             throw new ResponseException(400, "Error: you must be logged in.");
         }
@@ -206,7 +254,14 @@ public class ChessClient {
                     observe_game <game_ID>: joins the specified game as an observer
                     """;
         } else {
-            return "This prompt will be implemented in Phase 6."; //implement in Phase 6
+            return """
+                   help: displays options
+                   redraw_board: redraws the current board
+                   leave: leave game
+                   make_move <chess_move>: makes the desired move if valid. Moves must be formatted in standard notation
+                   resign: resign the game
+                   highlight_moves <chess_position>: highlights the legal moves for the desired position
+                   """;
         }
     }
 }

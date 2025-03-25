@@ -27,7 +27,6 @@ public class Repl {
         while (!result.equals("quit")) {
             printPrompt(out);
             String line = scanner.nextLine();
-
             try {
                 result = client.eval(line);
                 out.print(SET_TEXT_COLOR_BLUE + result);
@@ -38,7 +37,6 @@ public class Repl {
         }
         out.println();
         System.exit(0);
-        //implement Repl logic here
     }
 
     private void printPrompt(PrintStream out) {
