@@ -14,6 +14,7 @@ import websocket.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -244,10 +245,21 @@ public class ChessClient {
     }
 
     public String resign() throws ResponseException {
-        if (authToken != null) { //remember to confirm
-            return "You have resigned. Good game. Type \"leave_game\" to return to the menu."; //toDo: implement
-        } else {
+        if (authToken != null && userGameID != 0) { //remember to confirm
+            System.out.print("\nAre you sure you want to resign? (Type Y to confirm, or anything else to cancel.)");
+            Scanner scanner = new Scanner(System.in);
+            String line = scanner.nextLine();
+            scanner.close();
+            if (line.equals("Y") || line.equals("y")) {
+                ws.resign(authToken, userGameID); //Todo: where do we put resignation logic?
+                return "You have resigned. Good game. Type \"leave_game\" to return to the menu.";
+            } else {
+                return "Resignation cancelled.";
+            }
+        } else if (authToken == null) {
             throw new ResponseException(400, "Error: you must be logged in.");
+        } else {
+            throw new ResponseException(401, "Error: you must be in a game in order to resign.");
         }
     }
 
@@ -290,11 +302,11 @@ public class ChessClient {
     }
 
     public String makeMove(String... params) {
-        if (params.length == 1 && authToken != null) { //parse to make sure valid move format given
+        if (params.length == 1 && authToken != null) {
             String move = params[0];
             ChessMove chessMove = getChessMove(move);
-
-            return String.format("Made move %s.", move); //toDo: implement
+            ws.makeMove(authToken, userGameID, chessMove); //Todo: how to notify?
+            return String.format("Made move %s.", move);
         } else if (params.length != 1) {
             throw new ResponseException(401, "Expected: <chess_move>");
         } else {
@@ -328,7 +340,6 @@ public class ChessClient {
             throw new ResponseException(402, "Error: invalid move format. Move must be formatted thus: start_position," +
                     " end_position, promotion_piece (optional)");
         }
-
     }
 
     public String help() {
