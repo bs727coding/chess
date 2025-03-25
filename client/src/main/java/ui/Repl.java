@@ -1,11 +1,14 @@
 package ui;
 
+import websocket.NotificationHandler;
+import websocketmessages.Notification;
+
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
-public class Repl {
+public class Repl implements NotificationHandler {
     private final ChessClient client;
 
     public Repl(String url) {
@@ -40,6 +43,11 @@ public class Repl {
     }
 
     private void printPrompt(PrintStream out) {
-        out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN); //add a reset here?
+        out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
+    }
+
+    public void notify(PrintStream out, Notification notification) {
+        out.println(SET_TEXT_COLOR_RED + notification.message());
+        printPrompt(out);
     }
 }
