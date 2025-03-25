@@ -1,7 +1,8 @@
 package ui;
 
-import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import exception.ResponseException;
 import model.GameInformation;
@@ -13,6 +14,8 @@ import websocket.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ChessClient {
     private final ServerFacade server;
@@ -30,6 +33,7 @@ public class ChessClient {
         serverUrl = url;
         gameIDMap = new HashMap<>();
         this.notificationHandler = notificationHandler;
+        userGameID = 0;
     }
 
     public String eval(String input) {
@@ -152,15 +156,7 @@ public class ChessClient {
             try {
                 int niceGameID = Integer.parseInt(params[0]); //game ID first, then player color
                 Integer actualGameID = gameIDMap.get(niceGameID);
-                ChessGame.TeamColor color;
-                if (actualGameID == null) {
-                    throw new ResponseException(401, "Error: game not found. Provide a new ID.");
-                }
-                switch (params[1]) {
-                    case "black", "Black" -> color = ChessGame.TeamColor.BLACK;
-                    case "white", "White" -> color = ChessGame.TeamColor.WHITE;
-                    default -> throw new ResponseException(401, "Error. Invalid team color provided.");
-                }
+                ChessGame.TeamColor color = getTeamColor(params, actualGameID);
                 JoinGameResult result = server.joinGame(new JoinGameRequest(authToken, color, actualGameID));
                 state = State.IN_GAME;
                 userGameID = actualGameID;
@@ -180,6 +176,19 @@ public class ChessClient {
         } else {
             throw new ResponseException(400, "Error: you must be logged in.");
         }
+    }
+
+    private static ChessGame.TeamColor getTeamColor(String[] params, Integer actualGameID) {
+        ChessGame.TeamColor color;
+        if (actualGameID == null) {
+            throw new ResponseException(401, "Error: game not found. Provide a new ID.");
+        }
+        switch (params[1]) {
+            case "black", "Black" -> color = ChessGame.TeamColor.BLACK;
+            case "white", "White" -> color = ChessGame.TeamColor.WHITE;
+            default -> throw new ResponseException(401, "Error. Invalid team color provided.");
+        }
+        return color;
     }
 
     public String observeGame(String... params) throws ResponseException {
@@ -220,16 +229,23 @@ public class ChessClient {
     }
 
     public String leave() throws ResponseException {
-        if (authToken != null) { //state change, make userGameID null, make userColor null
-            return "called leave"; //toDo: implement
-        } else {
+        if (authToken != null && userGameID != 0) { //state change, make userGameID null, make userColor null
+            ws.leave(authToken, userGameID);
+            userGameID = 0;
+            userColor = null;
+            state = State.POST_LOGIN;
+            ws = null;
+            return "Successfully left the game.";
+        } else if (authToken == null){
             throw new ResponseException(400, "Error: you must be logged in.");
+        } else {
+            throw new ResponseException(401, "Error: you must be in a game to leave it.");
         }
     }
 
     public String resign() throws ResponseException {
         if (authToken != null) { //remember to confirm
-            return "called resign"; //toDo: implement
+            return "You have resigned. Good game. Type \"leave_game\" to return to the menu."; //toDo: implement
         } else {
             throw new ResponseException(400, "Error: you must be logged in.");
         }
@@ -238,18 +254,7 @@ public class ChessClient {
     public String highlightMoves(String... params) throws ResponseException {
         if (params.length == 1 && authToken != null) {
             String position = params[0];
-            if (position.length() != 2) {
-                throw new ResponseException(401, "Error: position must be formatted letter/number, e.g. d4.");
-            }
-            char rowLetter = Character.toLowerCase(position.charAt(0));
-            int col = Character.getNumericValue(position.charAt(1));
-            if (rowLetter != ('a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h')) {
-                throw new ResponseException(401, "Error: first value must be a letter from a-h.");
-            } else if (col < 0 || col > 8) {
-                throw new ResponseException(401, "Error: second value must be a number from 1-8.");
-            }
-            int row = letterToNumber(rowLetter);
-            ChessPosition chessPosition = new ChessPosition(row, col);
+            ChessPosition chessPosition = getChessPosition(position);
             DrawBoardResult drawBoardResult = server.drawBoard(new DrawBoardRequest(authToken, userGameID));
             DrawBoard drawBoard = new DrawBoard(drawBoardResult.gameData().game().getBoard());
             drawBoard.highlight(System.out, drawBoardResult.gameData().game().validMoves(chessPosition), userColor);
@@ -259,6 +264,21 @@ public class ChessClient {
         } else {
             throw new ResponseException(400, "Error: you must be logged in.");
         }
+    }
+
+    private static ChessPosition getChessPosition(String position) {
+        if (position.length() != 2) {
+            throw new ResponseException(401, "Error: position must be formatted letter/number, e.g. d4.");
+        }
+        char rowLetter = Character.toLowerCase(position.charAt(0));
+        int col = Character.getNumericValue(position.charAt(1));
+        if (rowLetter != ('a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h')) {
+            throw new ResponseException(401, "Error: first value must be a letter from a-h.");
+        } else if (col < 0 || col > 8) {
+            throw new ResponseException(401, "Error: second value must be a number from 1-8.");
+        }
+        int row = letterToNumber(rowLetter);
+        return new ChessPosition(row, col);
     }
 
     private static int letterToNumber(char letter) throws ResponseException {
@@ -271,12 +291,44 @@ public class ChessClient {
 
     public String makeMove(String... params) {
         if (params.length == 1 && authToken != null) { //parse to make sure valid move format given
-            return "called makeMove"; //toDo: implement
+            String move = params[0];
+            ChessMove chessMove = getChessMove(move);
+
+            return String.format("Made move %s.", move); //toDo: implement
         } else if (params.length != 1) {
             throw new ResponseException(401, "Expected: <chess_move>");
         } else {
             throw new ResponseException(400, "Error: you must be logged in.");
         }
+    }
+
+    private static ChessPiece.PieceType getPromotionPiece(String piece) throws ResponseException {
+        if (piece.length() == 1) {
+            return switch (piece.charAt(0)) {
+                case 'Q' -> ChessPiece.PieceType.QUEEN;
+                case 'R' -> ChessPiece.PieceType.ROOK;
+                case 'N' -> ChessPiece.PieceType.KNIGHT;
+                case 'B' -> ChessPiece.PieceType.BISHOP;
+                default -> throw new ResponseException(403, "Error: invalid promotion piece formatting.");
+            };
+        } else {
+            throw new ResponseException(403, "Error: invalid promotion piece formatting.");
+        }
+    }
+
+    private static ChessMove getChessMove(String move) throws ResponseException {
+        Pattern movePattern = Pattern.compile("([a-h][1-8])([a-h][1-8])([QRBN])?");
+        Matcher matcher = movePattern.matcher(move);
+        if (matcher.matches()) {
+            ChessPosition startPosition = getChessPosition(matcher.group(1));
+            ChessPosition endPosition = getChessPosition(matcher.group(2));
+            ChessPiece.PieceType promotionPiece = getPromotionPiece(matcher.group(3));
+            return new ChessMove(startPosition, endPosition, promotionPiece);
+        } else {
+            throw new ResponseException(402, "Error: invalid move format. Move must be formatted thus: start_position," +
+                    " end_position, promotion_piece (optional)");
+        }
+
     }
 
     public String help() {
