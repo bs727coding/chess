@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessPosition;
 import exception.ResponseException;
 import model.GameInformation;
 import net.ServerFacade;
@@ -19,10 +20,14 @@ public class ChessClient {
     private String authToken;
     private final HashMap<Integer, Integer> gameIDMap;
     private WebSocketFacade ws;
+    private final String serverUrl;
     private final NotificationHandler notificationHandler;
+    private int userGameID;
+    private ChessGame.TeamColor userColor;
 
     public ChessClient(String url, NotificationHandler notificationHandler) { //add notification handler in phase 6
         server = new ServerFacade(url);
+        serverUrl = url;
         gameIDMap = new HashMap<>();
         this.notificationHandler = notificationHandler;
     }
@@ -158,6 +163,10 @@ public class ChessClient {
                 }
                 JoinGameResult result = server.joinGame(new JoinGameRequest(authToken, color, actualGameID));
                 state = State.IN_GAME;
+                userGameID = actualGameID;
+                userColor = color;
+                ws = new WebSocketFacade(serverUrl, notificationHandler);
+                ws.connect(authToken, actualGameID);
                 DrawBoard drawBoard = new DrawBoard(result.gameData().game().getBoard());
                 drawBoard.drawBoard(System.out, color);
                 return String.format("Successfully joined game %s as %s", params[0], params[1]);
@@ -181,9 +190,12 @@ public class ChessClient {
                 if (actualGameID == null) {
                     throw new ResponseException(401, "Error: game not found. Provide a new ID.");
                 }
-                ChessBoard board = new ChessBoard();
-                board.resetBoard();
-                DrawBoard drawBoard = new DrawBoard(board);
+                ws = new WebSocketFacade(serverUrl, notificationHandler);
+                ws.connect(authToken, actualGameID);
+                userGameID = actualGameID;
+                userColor = null;
+                DrawBoardResult drawBoardResult = server.drawBoard(new DrawBoardRequest(authToken, userGameID));
+                DrawBoard drawBoard = new DrawBoard(drawBoardResult.gameData().game().getBoard());
                 drawBoard.drawBoard(System.out, ChessGame.TeamColor.WHITE);
                 return String.format("Successfully joined game %s as observer.", niceGameID);
             } catch (NumberFormatException e) {
@@ -198,14 +210,17 @@ public class ChessClient {
 
     public String redrawChessBoard() throws ResponseException {
         if (authToken != null) {
-            return "called redraw"; //toDo: implement
+            DrawBoardResult drawBoardResult = server.drawBoard(new DrawBoardRequest(authToken, userGameID));
+            DrawBoard drawBoard = new DrawBoard(drawBoardResult.gameData().game().getBoard());
+            drawBoard.drawBoard(System.out, userColor);
+            return "Successfully drew board.";
         } else {
             throw new ResponseException(400, "Error: you must be logged in.");
         }
     }
 
     public String leave() throws ResponseException {
-        if (authToken != null) { //state change
+        if (authToken != null) { //state change, make userGameID null, make userColor null
             return "called leave"; //toDo: implement
         } else {
             throw new ResponseException(400, "Error: you must be logged in.");
@@ -220,13 +235,37 @@ public class ChessClient {
         }
     }
 
-    public String highlightMoves(String... params) {
-        if (params.length == 1 && authToken != null) { //parse to make sure valid position given
-            return "called highlight"; //toDo: implement
+    public String highlightMoves(String... params) throws ResponseException {
+        if (params.length == 1 && authToken != null) {
+            String position = params[0];
+            if (position.length() != 2) {
+                throw new ResponseException(401, "Error: position must be formatted letter/number, e.g. d4.");
+            }
+            char rowLetter = Character.toLowerCase(position.charAt(0));
+            int col = Character.getNumericValue(position.charAt(1));
+            if (rowLetter != ('a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h')) {
+                throw new ResponseException(401, "Error: first value must be a letter from a-h.");
+            } else if (col < 0 || col > 8) {
+                throw new ResponseException(401, "Error: second value must be a number from 1-8.");
+            }
+            int row = letterToNumber(rowLetter);
+            ChessPosition chessPosition = new ChessPosition(row, col);
+            DrawBoardResult drawBoardResult = server.drawBoard(new DrawBoardRequest(authToken, userGameID));
+            DrawBoard drawBoard = new DrawBoard(drawBoardResult.gameData().game().getBoard());
+            drawBoard.highlight(System.out, drawBoardResult.gameData().game().validMoves(chessPosition), userColor);
+            return String.format("Successfully highlighted moves for position %s.", position);
         } else if (params.length != 1) {
             throw new ResponseException(401, "Expected: <chess_position>");
         } else {
             throw new ResponseException(400, "Error: you must be logged in.");
+        }
+    }
+
+    private static int letterToNumber(char letter) throws ResponseException {
+        if (letter >= 'a' && letter <= 'h') {
+            return letter - 'a' + 1;
+        } else {
+            throw new ResponseException(401, "Error: invalid row letter given.");
         }
     }
 

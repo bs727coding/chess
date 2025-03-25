@@ -8,9 +8,11 @@ import model.AuthData;
 import model.GameData;
 import model.GameInformation;
 import request.CreateGameRequest;
+import request.DrawBoardRequest;
 import request.JoinGameRequest;
 import request.ListGamesRequest;
 import result.CreateGameResult;
+import result.DrawBoardResult;
 import result.JoinGameResult;
 import result.ListGamesResult;
 
@@ -79,6 +81,14 @@ public class GameService {
             }
         }
         return updatedGameData;
+    }
+
+    public DrawBoardResult drawBoard(DrawBoardRequest drawBoardRequest) throws DataAccessException, ServiceException {
+        if (drawBoardRequest.gameID() == 0 || drawBoardRequest.authToken() == null) {
+            throw new ServiceException("Error: bad request");
+        }
+        authDAO.getAuth(drawBoardRequest.authToken());
+        return new DrawBoardResult(gameDAO.getGameData(drawBoardRequest.gameID()));
     }
 
     public void clear() {

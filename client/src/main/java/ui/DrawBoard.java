@@ -1,12 +1,10 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 
 import static ui.EscapeSequences.*;
 
@@ -39,6 +37,11 @@ public class DrawBoard {
             drawBoardBlack(out);
         }
         out.print(RESET_BG_COLOR);
+    }
+
+    public void highlight(PrintStream out, Collection<ChessMove> moves, ChessGame.TeamColor color) {
+        //ToDo: implement. Draws the board from the correct perspective but
+        // highlights every square that is included in the array
     }
 
     private void drawBoardWhite(PrintStream out) {
