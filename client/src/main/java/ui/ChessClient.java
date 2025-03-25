@@ -7,6 +7,7 @@ import model.GameInformation;
 import net.ServerFacade;
 import request.*;
 import result.*;
+import websocket.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,10 +18,13 @@ public class ChessClient {
     private State state = State.PRE_LOGIN;
     private String authToken;
     private final HashMap<Integer, Integer> gameIDMap;
+    private WebSocketFacade ws;
+    private final NotificationHandler notificationHandler;
 
-    public ChessClient(String url) { //add notification handler in phase 6
+    public ChessClient(String url, NotificationHandler notificationHandler) { //add notification handler in phase 6
         server = new ServerFacade(url);
         gameIDMap = new HashMap<>();
+        this.notificationHandler = notificationHandler;
     }
 
     public String eval(String input) {
@@ -194,7 +198,7 @@ public class ChessClient {
 
     public String redrawChessBoard() throws ResponseException {
         if (authToken != null) {
-            return null; //toDo: implement
+            return "called redraw"; //toDo: implement
         } else {
             throw new ResponseException(400, "Error: you must be logged in.");
         }
@@ -202,7 +206,7 @@ public class ChessClient {
 
     public String leave() throws ResponseException {
         if (authToken != null) { //state change
-            return null; //toDo: implement
+            return "called leave"; //toDo: implement
         } else {
             throw new ResponseException(400, "Error: you must be logged in.");
         }
@@ -210,7 +214,7 @@ public class ChessClient {
 
     public String resign() throws ResponseException {
         if (authToken != null) { //remember to confirm
-            return null; //toDo: implement
+            return "called resign"; //toDo: implement
         } else {
             throw new ResponseException(400, "Error: you must be logged in.");
         }
@@ -218,7 +222,7 @@ public class ChessClient {
 
     public String highlightMoves(String... params) {
         if (params.length == 1 && authToken != null) { //parse to make sure valid position given
-            return null; //toDo: implement
+            return "called highlight"; //toDo: implement
         } else if (params.length != 1) {
             throw new ResponseException(401, "Expected: <chess_position>");
         } else {
@@ -228,7 +232,7 @@ public class ChessClient {
 
     public String makeMove(String... params) {
         if (params.length == 1 && authToken != null) { //parse to make sure valid move format given
-            return null; //toDo: implement
+            return "called makeMove"; //toDo: implement
         } else if (params.length != 1) {
             throw new ResponseException(401, "Expected: <chess_move>");
         } else {

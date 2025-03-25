@@ -12,7 +12,7 @@ public class Repl implements NotificationHandler {
     private final ChessClient client;
 
     public Repl(String url) {
-        client = new ChessClient(url);
+        client = new ChessClient(url, this);
     }
 
     public static void main(String[] args) {
