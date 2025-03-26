@@ -6,6 +6,7 @@ import service.AuthService;
 import service.GameService;
 import service.UserService;
 import spark.*;
+import websocket.WebSocketHandler;
 
 public class Server {
 
@@ -39,6 +40,9 @@ public class Server {
         AuthService authService = new AuthService(authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
         Handler handler = new Handler(userService, gameService, authService);
+        WebSocketHandler webSocketHandler = new WebSocketHandler();
+
+        Spark.webSocket("/ws", webSocketHandler);
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/session", handler::loginHandler);
