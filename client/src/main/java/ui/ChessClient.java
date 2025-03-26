@@ -354,6 +354,10 @@ public class ChessClient {
         }
     }
 
+    public ChessGame.TeamColor getUserColor() {
+        return userColor;
+    }
+
     public String help() {
         if (state == State.PRE_LOGIN) {
             return """

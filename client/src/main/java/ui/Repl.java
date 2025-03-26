@@ -1,7 +1,9 @@
 package ui;
 
 import websocket.NotificationHandler;
-import websocket.messages.ServerMessage;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -46,8 +48,18 @@ public class Repl implements NotificationHandler {
         out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
     }
 
-    public void notify(PrintStream out, ServerMessage notification) {
-        out.println(SET_TEXT_COLOR_RED + notification.getMessage());
+    public void notify(PrintStream out, NotificationMessage notification) {
+        out.println(SET_TEXT_COLOR_BLUE + notification.getNotificationMessage());
         printPrompt(out);
+    }
+
+    public void notifyError(PrintStream out, ErrorMessage error) {
+        out.println(SET_TEXT_COLOR_RED+ error.getErrorMessage());
+        printPrompt(out);
+    }
+
+    public void notifyLoadGame(PrintStream out, LoadGameMessage game) {
+        DrawBoard drawBoard = new DrawBoard(game.getGame().getBoard());
+        drawBoard.drawBoard(out, client.getUserColor());
     }
 }
