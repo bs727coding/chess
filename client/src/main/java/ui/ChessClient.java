@@ -231,7 +231,11 @@ public class ChessClient {
 
     public String leave() throws ResponseException {
         if (authToken != null && userGameID != 0) { //state change, make userGameID null, make userColor null
-            ws.leave(authToken, userGameID);
+            if (ws != null) {
+                ws.leave(authToken, userGameID);
+            } else {
+                throw new ResponseException(500, "Internal WebSocket error. Try again.");
+            }
             userGameID = 0;
             userColor = null;
             state = State.POST_LOGIN;
@@ -251,7 +255,11 @@ public class ChessClient {
             String line = scanner.nextLine();
             scanner.close();
             if (line.equals("Y") || line.equals("y")) {
-                ws.resign(authToken, userGameID); //Todo: where do we put resignation logic?
+                if (ws != null) {
+                    ws.resign(authToken, userGameID);
+                } else {
+                    throw new ResponseException(500, "Internal WebSocket error. Try again.");
+                } //Todo: where do we put resignation logic/notifications?
                 return "You have resigned. Good game. Type \"leave_game\" to return to the menu.";
             } else {
                 return "Resignation cancelled.";
@@ -305,7 +313,11 @@ public class ChessClient {
         if (params.length == 1 && authToken != null) {
             String move = params[0];
             ChessMove chessMove = getChessMove(move);
-            ws.makeMove(authToken, userGameID, chessMove); //Todo: how to notify?
+            if (ws != null) {
+                ws.makeMove(authToken, userGameID, chessMove);
+            } else {
+                throw new ResponseException(500, "Internal WebSocket error. Try again.");
+            } //Todo: how to notify?
             return String.format("Made move %s.", move);
         } else if (params.length != 1) {
             throw new ResponseException(401, "Expected: <chess_move>");

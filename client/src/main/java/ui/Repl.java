@@ -1,7 +1,7 @@
 package ui;
 
 import websocket.NotificationHandler;
-import websocketmessages.Notification;
+import websocket.messages.ServerMessage;
 
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
@@ -46,8 +46,8 @@ public class Repl implements NotificationHandler {
         out.print("\n" + ">>> " + SET_TEXT_COLOR_GREEN);
     }
 
-    public void notify(PrintStream out, Notification notification) {
-        out.println(SET_TEXT_COLOR_RED + notification.message());
+    public void notify(PrintStream out, ServerMessage notification) {
+        out.println(SET_TEXT_COLOR_RED + notification.getMessage());
         printPrompt(out);
     }
 }
