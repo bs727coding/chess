@@ -39,20 +39,20 @@ public class Server {
         UserService userService = new UserService(userDAO, authDAO);
         AuthService authService = new AuthService(authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
-        Handler handler = new Handler(userService, gameService, authService);
-        WebSocketHandler webSocketHandler = new WebSocketHandler();
+        Handler httpHandler = new Handler(userService, gameService, authService);
+        WebSocketHandler webSocketHandler = new WebSocketHandler(userService, gameService, authService);
 
         Spark.webSocket("/ws", webSocketHandler);
 
         // Register your endpoints and handle exceptions here.
-        Spark.post("/session", handler::loginHandler);
-        Spark.delete("/session", handler::logoutHandler);
-        Spark.delete("/db", handler::clearHandler);
-        Spark.post("/user", handler::registerHandler);
-        Spark.get("/game", handler::listGamesHandler);
-        Spark.post("/game", handler::createGameHandler);
-        Spark.put("/game", handler::joinGameHandler);
-        Spark.get("/board", handler::drawBoardHandler);
+        Spark.post("/session", httpHandler::loginHandler);
+        Spark.delete("/session", httpHandler::logoutHandler);
+        Spark.delete("/db", httpHandler::clearHandler);
+        Spark.post("/user", httpHandler::registerHandler);
+        Spark.get("/game", httpHandler::listGamesHandler);
+        Spark.post("/game", httpHandler::createGameHandler);
+        Spark.put("/game", httpHandler::joinGameHandler);
+        Spark.get("/board", httpHandler::drawBoardHandler);
 
         Spark.awaitInitialization();
         return Spark.port();

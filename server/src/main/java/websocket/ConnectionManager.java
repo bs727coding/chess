@@ -11,20 +11,20 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConnectionManager {
     public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
 
-    public void add(String userName, Session session) {
-        var connection = new Connection(userName, session);
-        connections.put(userName, connection);
+    public void add(String authToken, Session session) {
+        var connection = new Connection(authToken, session);
+        connections.put(authToken, connection);
     }
 
-    public void remove(String userName) {
-        connections.remove(userName);
+    public void remove(String authToken) {
+        connections.remove(authToken);
     }
 
-    public void broadcast(String excludeUserName, ServerMessage message) throws IOException {
+    public void sendToAllButRootClient(String excludeAuthToken, ServerMessage message) throws IOException {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
             if (c.session.isOpen()) {
-                if (!c.userName.equals(excludeUserName)) {
+                if (!c.authToken.equals(excludeAuthToken)) {
                     c.send(message);
                 }
             } else {
@@ -34,7 +34,25 @@ public class ConnectionManager {
 
         // Clean up any connections that were left open.
         for (var c : removeList) {
-            connections.remove(c.userName);
+            connections.remove(c.authToken);
+        }
+    }
+
+    public void sendToRootClient(String authToken, ServerMessage message) throws IOException {
+        var removeList = new ArrayList<Connection>();
+        for (var c : connections.values()) {
+            if (c.session.isOpen()) {
+                if (c.authToken.equals(authToken)) {
+                    c.send(message);
+                }
+            } else {
+                removeList.add(c);
+            }
+        }
+
+        // Clean up any connections that were left open.
+        for (var c : removeList) {
+            connections.remove(c.authToken);
         }
     }
 }

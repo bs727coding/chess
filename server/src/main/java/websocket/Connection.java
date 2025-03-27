@@ -7,11 +7,11 @@ import com.google.gson.Gson;
 import java.io.IOException;
 
 public class Connection {
-    public String userName;
+    public String authToken;
     public Session session;
 
-    public Connection(String userName, Session session) {
-        this.userName = userName;
+    public Connection(String authToken, Session session) {
+        this.authToken = authToken;
         this.session = session;
     }
 
