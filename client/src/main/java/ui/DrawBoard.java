@@ -42,6 +42,7 @@ public class DrawBoard {
     public void highlight(PrintStream out, Collection<ChessMove> moves, ChessGame.TeamColor color) {
         //ToDo: implement. Draws the board from the correct perspective but
         // highlights every square that is included in the array
+        out.println("successfully called highlight board. This is under development.");
     }
 
     private void drawBoardWhite(PrintStream out) {

@@ -52,7 +52,6 @@ public class Server {
         Spark.get("/game", httpHandler::listGamesHandler);
         Spark.post("/game", httpHandler::createGameHandler);
         Spark.put("/game", httpHandler::joinGameHandler);
-        Spark.get("/board", httpHandler::drawBoardHandler); //not needed, remove
 
         Spark.awaitInitialization();
         return Spark.port();

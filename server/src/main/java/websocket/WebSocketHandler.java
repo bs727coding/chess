@@ -37,15 +37,16 @@ public class WebSocketHandler {
         String authToken = command.getAuthToken();
         try {
             switch (command.getCommandType()) {
-                case RESIGN -> {
-                    resign(authToken, command.getGameID());
-                }
+                case RESIGN -> resign(authToken, command.getGameID());
                 case LEAVE -> leave(authToken, command.getGameID());
                 case CONNECT -> {
                     ConnectCommand connectCommand = new Gson().fromJson(message, ConnectCommand.class);
                     connect(authToken, command.getGameID(), session, connectCommand.getColor());
                 }
-                case MAKE_MOVE -> makeMove(authToken, command.getGameID(), ((MakeMoveCommand) command).getMove());
+                case MAKE_MOVE -> {
+                    MakeMoveCommand makeMoveCommand = new Gson().fromJson(message, MakeMoveCommand.class);
+                    makeMove(authToken, command.getGameID(), makeMoveCommand.getMove());
+                }
             }
         } catch (DataAccessException | ServiceException e) {
             try {
@@ -69,6 +70,9 @@ public class WebSocketHandler {
         String userName = authService.getUserName(authToken);
         if (gameID == 0) {
             throw new DataAccessException("Error. Provide a correct gameID.");
+        }
+        if (gameService.isOver(authToken, gameID)) {
+            throw new DataAccessException("Error: game has already ended.");
         }
         gameService.endGame(authToken, gameID); //test to see if it works
         connections.sendToAllButRootClient(authToken, new NotificationMessage

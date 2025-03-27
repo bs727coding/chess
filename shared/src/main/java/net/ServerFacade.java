@@ -44,10 +44,4 @@ public class ServerFacade {
         return ClientCommunicator.makeRequest(serverUrl, "PUT", path, joinGameRequest.authToken(),
                 joinGameRequest, JoinGameResult.class);
     }
-
-    public DrawBoardResult drawBoard(DrawBoardRequest drawBoardRequest) throws ResponseException {
-        var path = "/board";
-        return ClientCommunicator.makeRequest(serverUrl, "GET", path, drawBoardRequest.authToken(),
-                drawBoardRequest, DrawBoardResult.class);
-    }
 }

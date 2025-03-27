@@ -1,9 +1,6 @@
 package ui;
 
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import exception.ResponseException;
 import model.GameInformation;
 import net.ServerFacade;
@@ -11,10 +8,7 @@ import request.*;
 import result.*;
 import websocket.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +31,7 @@ public class ChessClient {
         userGameID = 0;
     }
 
-    public String eval(String input) {
+    public String eval(String input, ChessGame game) {
         try {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
@@ -60,11 +54,11 @@ public class ChessClient {
                 };
             } else if (state == State.IN_GAME) {
                 return switch (cmd) {
-                    case "redraw_board" -> redrawChessBoard();
+                    case "redraw_board" -> redrawChessBoard(game.getBoard());
                     case "leave" -> leave();
                     case "make_move" -> makeMove(params);
                     case "resign" -> resign(); //require confirmation
-                    case "highlight_moves" -> highlightMoves(params);
+                    case "highlight_moves" -> highlightMoves(game, params);
                     default -> help();
                 };
             } else {
@@ -204,9 +198,6 @@ public class ChessClient {
                 ws.connect(authToken, actualGameID);
                 userGameID = actualGameID;
                 userColor = null;
-                DrawBoardResult drawBoardResult = server.drawBoard(new DrawBoardRequest(authToken, userGameID));
-                DrawBoard drawBoard = new DrawBoard(drawBoardResult.gameData().game().getBoard());
-                drawBoard.drawBoard(System.out, ChessGame.TeamColor.WHITE);
                 return String.format("Successfully joined game %s as observer.", niceGameID);
             } catch (NumberFormatException e) {
                 throw new ResponseException(401, "Error: provide a number for the gameID.");
@@ -218,10 +209,9 @@ public class ChessClient {
         }
     }
 
-    public String redrawChessBoard() throws ResponseException {
+    public String redrawChessBoard(ChessBoard board) throws ResponseException {
         if (authToken != null) {
-            DrawBoardResult drawBoardResult = server.drawBoard(new DrawBoardRequest(authToken, userGameID));
-            DrawBoard drawBoard = new DrawBoard(drawBoardResult.gameData().game().getBoard());
+            DrawBoard drawBoard = new DrawBoard(board);
             drawBoard.drawBoard(System.out, userColor);
             return "Successfully drew board.";
         } else {
@@ -250,17 +240,16 @@ public class ChessClient {
 
     public String resign() throws ResponseException {
         if (authToken != null && userGameID != 0) { //remember to confirm
-            System.out.print("\nAre you sure you want to resign? (Type Y to confirm, or anything else to cancel.)");
+            System.out.print("\nAre you sure you want to resign? (Type Y to confirm, or anything else to cancel.)\n");
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
-            //scanner.close();
             if (line.equals("Y") || line.equals("y")) {
                 if (ws != null) {
                     ws.resign(authToken, userGameID);
                 } else {
                     throw new ResponseException(500, "Internal WebSocket error. Try again.");
-                } //Todo: where do we put resignation logic/notifications?
-                return "You have resigned. Good game. Type \"leave_game\" to return to the menu.";
+                }
+                return "You have resigned. Good game. Type \"leave\" to return to the menu.";
             } else {
                 return "Resignation cancelled.";
             }
@@ -271,13 +260,12 @@ public class ChessClient {
         }
     }
 
-    public String highlightMoves(String... params) throws ResponseException {
+    public String highlightMoves(ChessGame game, String... params) throws ResponseException {
         if (params.length == 1 && authToken != null) {
             String position = params[0];
             ChessPosition chessPosition = getChessPosition(position);
-            DrawBoardResult drawBoardResult = server.drawBoard(new DrawBoardRequest(authToken, userGameID));
-            DrawBoard drawBoard = new DrawBoard(drawBoardResult.gameData().game().getBoard());
-            drawBoard.highlight(System.out, drawBoardResult.gameData().game().validMoves(chessPosition), userColor);
+            DrawBoard drawBoard = new DrawBoard(game.getBoard());
+            drawBoard.highlight(System.out, game.validMoves(chessPosition), userColor);
             return String.format("Successfully highlighted moves for position %s.", position);
         } else if (params.length != 1) {
             throw new ResponseException(401, "Expected: <chess_position>");

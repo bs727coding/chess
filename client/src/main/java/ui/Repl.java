@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import websocket.NotificationHandler;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -12,6 +13,7 @@ import static ui.EscapeSequences.*;
 
 public class Repl implements NotificationHandler {
     private final ChessClient client;
+    private ChessGame game;
 
     public Repl(String url) {
         client = new ChessClient(url, this);
@@ -33,7 +35,7 @@ public class Repl implements NotificationHandler {
             printPrompt(out);
             String line = scanner.nextLine();
             try {
-                result = client.eval(line);
+                result = client.eval(line, game);
                 out.print(SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e) {
                 var msg = e.toString();
@@ -49,7 +51,7 @@ public class Repl implements NotificationHandler {
     }
 
     public void notify(PrintStream out, NotificationMessage notification) {
-        out.println(SET_TEXT_COLOR_BLUE + notification.getNotificationMessage());
+        out.println(SET_TEXT_COLOR_BLUE + notification.getMessage());
         printPrompt(out);
     }
 
@@ -59,7 +61,8 @@ public class Repl implements NotificationHandler {
     }
 
     public void notifyLoadGame(PrintStream out, LoadGameMessage game) {
-        DrawBoard drawBoard = new DrawBoard(game.getGame().getBoard());
+        this.game = game.getGame();
+        DrawBoard drawBoard = new DrawBoard(this.game.getBoard());
         drawBoard.drawBoard(out, client.getUserColor());
     }
 }

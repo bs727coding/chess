@@ -30,9 +30,19 @@ public class WebSocketFacade extends Endpoint {
                 public void onMessage(String message) {
                     ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
                     switch (notification.getServerMessageType()) {
-                        case ERROR -> notificationHandler.notifyError(System.out, (ErrorMessage) notification); //pass in printStream higher up?
-                        case LOAD_GAME -> notificationHandler.notifyLoadGame(System.out, (LoadGameMessage) notification);
-                        case NOTIFICATION -> notificationHandler.notify(System.out, (NotificationMessage) notification); //default with exception throwing needed?
+                        case ERROR -> {
+                            ErrorMessage errorMessage = new Gson().fromJson(message, ErrorMessage.class);
+                            notificationHandler.notifyError(System.out, errorMessage);
+                        } //pass in printStream higher up?
+                        case LOAD_GAME -> {
+                            LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
+                            notificationHandler.notifyLoadGame(System.out, loadGameMessage);
+                        }
+                        case NOTIFICATION -> {
+                            NotificationMessage notificationMessage =
+                                    new Gson().fromJson(message, NotificationMessage.class);
+                            notificationHandler.notify(System.out, notificationMessage);
+                        } //default with exception throwing needed?
                     }
                 }
             });
