@@ -152,14 +152,12 @@ public class ChessClient {
                 int niceGameID = Integer.parseInt(params[0]); //game ID first, then player color
                 Integer actualGameID = gameIDMap.get(niceGameID);
                 ChessGame.TeamColor color = getTeamColor(params, actualGameID);
-                JoinGameResult result = server.joinGame(new JoinGameRequest(authToken, color, actualGameID));
+                server.joinGame(new JoinGameRequest(authToken, color, actualGameID));
                 state = State.IN_GAME;
                 userGameID = actualGameID;
                 userColor = color;
                 ws = new WebSocketFacade(serverUrl, notificationHandler);
                 ws.connect(authToken, actualGameID);
-                DrawBoard drawBoard = new DrawBoard(result.gameData().game().getBoard());
-                drawBoard.drawBoard(System.out, color);
                 return String.format("Successfully joined game %s as %s", params[0], params[1]);
             } catch (NumberFormatException e) {
                 throw new ResponseException(401, "Error: provide a number for the gameID.");
@@ -249,7 +247,7 @@ public class ChessClient {
                 } else {
                     throw new ResponseException(500, "Internal WebSocket error. Try again.");
                 }
-                return "You have resigned. Good game. Type \"leave\" to return to the menu.";
+                return "";
             } else {
                 return "Resignation cancelled.";
             }

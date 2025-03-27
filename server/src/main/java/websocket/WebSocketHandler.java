@@ -74,10 +74,10 @@ public class WebSocketHandler {
         if (gameService.isOver(authToken, gameID)) {
             throw new DataAccessException("Error: game has already ended.");
         }
-        gameService.endGame(authToken, gameID); //test to see if it works
+        gameService.endGame(authToken, gameID);
         connections.sendToAllButRootClient(authToken, new NotificationMessage
                 (String.format("%s resigned. Good game.", userName)));
-        connections.sendToAllButRootClient(authToken, new NotificationMessage
+        connections.sendToRootClient(authToken, new NotificationMessage
                 (String.format("%s resigned. Good game.", userName)));
     }
 

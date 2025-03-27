@@ -62,7 +62,9 @@ public class Repl implements NotificationHandler {
 
     public void notifyLoadGame(PrintStream out, LoadGameMessage game) {
         this.game = game.getGame();
+        out.println();
         DrawBoard drawBoard = new DrawBoard(this.game.getBoard());
         drawBoard.drawBoard(out, client.getUserColor());
+        printPrompt(out);
     }
 }
