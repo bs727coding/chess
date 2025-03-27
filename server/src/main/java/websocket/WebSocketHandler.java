@@ -6,7 +6,6 @@ import chess.ChessMove;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import exception.ResponseException;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
@@ -36,11 +35,11 @@ public class WebSocketHandler {
     private final ConnectionManager connections = new ConnectionManager();
 
     @OnWebSocketMessage
-    public void onMessage(Session session, String message) throws IOException {
+    public void onMessage(Session session, String message) {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         switch (command.getCommandType()) {
             case RESIGN -> resign(command.getAuthToken(), command.getGameID());
-            case LEAVE -> leave(command.getAuthToken(), command.getGameID(), session);
+            case LEAVE -> leave(command.getAuthToken(), command.getGameID());
             case CONNECT -> connect(command.getAuthToken(), command.getGameID(), session,
                     ((ConnectCommand)command).getColor());
             case MAKE_MOVE -> makeMove(command.getAuthToken(), command.getGameID(),
@@ -77,7 +76,7 @@ public class WebSocketHandler {
         }
     }
 
-    private void leave(String authToken, int gameID, Session session) {
+    private void leave(String authToken, int gameID) {
         /* verify and obtain userName from authToken
         verify gameID
         If a player is leaving, then the game is updated to remove the root client. Game is updated in the database.
@@ -92,7 +91,7 @@ public class WebSocketHandler {
             gameService.leaveGame(authToken, gameID);
             connections.sendToAllButRootClient(authToken, new NotificationMessage
                     (String.format("%s left the game.", userName)));
-
+            connections.remove(authToken);
         } catch (DataAccessException | ServiceException e) {
             try {
                 connections.sendToRootClient(authToken, new ErrorMessage(e.getMessage()));
@@ -164,7 +163,7 @@ public class WebSocketHandler {
                 connections.sendToRootClient(authToken, new LoadGameMessage(updatedGameData.game()));
                 connections.sendToAllButRootClient(authToken, new LoadGameMessage(updatedGameData.game()));
                 connections.sendToAllButRootClient(authToken, new NotificationMessage(String.format(
-                        "%s made the move %s.", userName, move.toString())));
+                        "%s made the move %s.", userName, move)));
                 if (updatedGameData.game().isInCheck(ChessGame.TeamColor.WHITE)) {
                     connections.sendToAllButRootClient(authToken, new NotificationMessage("White is in check."));
                     connections.sendToRootClient(authToken, new NotificationMessage("White is in check."));
@@ -203,13 +202,4 @@ public class WebSocketHandler {
             throw new RuntimeException(ex); //Todo: where to handle IOException?
         }
     }
-
-    /*
-    private void exit(String visitorName) throws IOException {
-        connections.remove(visitorName);
-        var message = String.format("%s left the shop", visitorName);
-        var notification = new Notification(Notification.Type.DEPARTURE, message);
-        connections.sendToAllButRootClient(visitorName, notification);
-    }
-    */
 }
