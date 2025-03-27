@@ -13,10 +13,12 @@ public class ChessGame {
     private TeamColor turn;
     private ChessBoard board = new ChessBoard();
     private ChessMove lastMove;
+    boolean isOver;
 
     public ChessGame() {
         turn = TeamColor.WHITE;
         board.resetBoard();
+        isOver = false;
     }
 
     public TeamColor getTeamTurn() {
@@ -484,5 +486,13 @@ public class ChessGame {
 
     public ChessBoard getBoard() {
         return board;
+    }
+
+    public boolean isOver() {
+        return isOver;
+    }
+
+    public void endGame() {
+        isOver = true;
     }
 }

@@ -3,9 +3,11 @@ package websocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import exception.ResponseException;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
@@ -58,15 +60,21 @@ public class WebSocketHandler {
             if (gameID == 0) {
                 throw new DataAccessException("Error. Provide a correct gameID.");
             }
-
-        } catch (DataAccessException e) {
+            gameService.endGame(authToken, gameID); //test to see if it works
+            connections.sendToAllButRootClient(authToken, new NotificationMessage
+                    (String.format("%s resigned. Good game.", userName)));
+            connections.sendToAllButRootClient(authToken, new NotificationMessage
+                    (String.format("%s resigned. Good game.", userName)));
+        } catch (DataAccessException | ServiceException e) {
             try {
                 connections.sendToRootClient(authToken, new ErrorMessage(e.getMessage()));
             } catch (IOException ex) {
                 throw new RuntimeException(ex); //Todo: where to handle IOException?
             }
         }
-
+        catch (IOException ex) {
+            throw new RuntimeException(ex); //Todo: where to handle IOException?
+        }
     }
 
     private void leave(String authToken, int gameID, Session session) {
@@ -81,13 +89,18 @@ public class WebSocketHandler {
             if (gameID == 0) {
                 throw new DataAccessException("Error. Provide a correct gameID.");
             }
+            gameService.leaveGame(authToken, gameID);
+            connections.sendToAllButRootClient(authToken, new NotificationMessage
+                    (String.format("%s left the game.", userName)));
 
-        } catch (DataAccessException e) {
+        } catch (DataAccessException | ServiceException e) {
             try {
                 connections.sendToRootClient(authToken, new ErrorMessage(e.getMessage()));
             } catch (IOException ex) {
                 throw new RuntimeException(ex); //Todo: where to handle IOException?
             }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex); //Todo: where to handle IOException?
         }
     }
 
@@ -100,7 +113,7 @@ public class WebSocketHandler {
         //either as a player (in which case their color must be specified) or as an observer.
         try {
             connections.add(authToken, session);
-            String colorName = "";
+            String colorName;
             switch (color) {
                 case WHITE -> colorName = "White";
                 case BLACK -> colorName = "Black";
@@ -139,37 +152,64 @@ public class WebSocketHandler {
             if (gameID == 0) {
                 throw new DataAccessException("Error. Provide a correct gameID.");
             }
-
-        } catch (DataAccessException e) {
+            //check to see if game is over before making move
+            if (gameService.isOver(authToken, gameID)) {
+                throw new DataAccessException("Error: game has already ended.");
+            } else {
+                GameData gameData = gameService.drawBoard(new DrawBoardRequest(authToken, gameID)).gameData();
+                gameData.game().makeMove(move);
+                gameService.updateGame(authToken, gameData);
+                //updatedGameData is to check to make sure the board successfully updated in the database
+                GameData updatedGameData = gameService.drawBoard(new DrawBoardRequest(authToken, gameID)).gameData();
+                connections.sendToRootClient(authToken, new LoadGameMessage(updatedGameData.game()));
+                connections.sendToAllButRootClient(authToken, new LoadGameMessage(updatedGameData.game()));
+                connections.sendToAllButRootClient(authToken, new NotificationMessage(String.format(
+                        "%s made the move %s.", userName, move.toString())));
+                if (updatedGameData.game().isInCheck(ChessGame.TeamColor.WHITE)) {
+                    connections.sendToAllButRootClient(authToken, new NotificationMessage("White is in check."));
+                    connections.sendToRootClient(authToken, new NotificationMessage("White is in check."));
+                } else if (updatedGameData.game().isInCheck(ChessGame.TeamColor.BLACK)) {
+                    connections.sendToAllButRootClient(authToken, new NotificationMessage("Black is in check."));
+                    connections.sendToRootClient(authToken, new NotificationMessage("Black is in check."));
+                } else if (updatedGameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                    connections.sendToAllButRootClient(authToken, new NotificationMessage("White is in checkmate. " +
+                            "Good game."));
+                    connections.sendToRootClient(authToken, new NotificationMessage("White is in checkmate." +
+                            " Good game."));
+                } else if (updatedGameData.game().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                    connections.sendToAllButRootClient(authToken, new NotificationMessage("Black is in checkmate. " +
+                            "Good game."));
+                    connections.sendToRootClient(authToken, new NotificationMessage("Black is in checkmate." +
+                            " Good game."));
+                } else if (updatedGameData.game().isInStalemate(ChessGame.TeamColor.WHITE)) {
+                    connections.sendToAllButRootClient(authToken, new NotificationMessage("White is in stalemate. " +
+                            "Game over."));
+                    connections.sendToRootClient(authToken, new NotificationMessage("White is in stalemate." +
+                            " Game over."));
+                } else if (updatedGameData.game().isInStalemate(ChessGame.TeamColor.BLACK)) {
+                    connections.sendToAllButRootClient(authToken, new NotificationMessage("Black is in stalemate. " +
+                            "Game over."));
+                    connections.sendToRootClient(authToken, new NotificationMessage("Black is in stalemate." +
+                            " Game over."));
+                }
+            }
+        } catch (DataAccessException | ServiceException | InvalidMoveException e) {
             try {
                 connections.sendToRootClient(authToken, new ErrorMessage(e.getMessage()));
             } catch (IOException ex) {
                 throw new RuntimeException(ex); //Todo: where to handle IOException?
             }
+        }  catch (IOException ex) {
+            throw new RuntimeException(ex); //Todo: where to handle IOException?
         }
     }
 
-    /*private void enter(String visitorName, Session session) throws IOException {
-        connections.add(visitorName, session);
-        var message = String.format("%s is in the shop", visitorName);
-        var notification = new Notification(Notification.Type.ARRIVAL, message);
-        connections.sendToAllButRootClient(visitorName, notification);
-    }
-
+    /*
     private void exit(String visitorName) throws IOException {
         connections.remove(visitorName);
         var message = String.format("%s left the shop", visitorName);
         var notification = new Notification(Notification.Type.DEPARTURE, message);
         connections.sendToAllButRootClient(visitorName, notification);
     }
-
-    public void makeNoise(String petName, String sound) throws ResponseException {
-        try {
-            var message = String.format("%s says %s", petName, sound);
-            var notification = new Notification(Notification.Type.NOISE, message);
-            connections.sendToAllButRootClient("", notification);
-        } catch (Exception ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
-    }*/
+    */
 }
