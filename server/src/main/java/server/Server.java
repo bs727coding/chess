@@ -40,7 +40,7 @@ public class Server {
         AuthService authService = new AuthService(authDAO);
         GameService gameService = new GameService(gameDAO, authDAO);
         Handler httpHandler = new Handler(userService, gameService, authService);
-        WebSocketHandler webSocketHandler = new WebSocketHandler(userService, gameService, authService);
+        WebSocketHandler webSocketHandler = new WebSocketHandler(gameService, authService);
 
         Spark.webSocket("/ws", webSocketHandler);
 

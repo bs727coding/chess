@@ -18,16 +18,13 @@ import websocket.commands.*;
 
 import java.io.IOException;
 
-
 @WebSocket
 public class WebSocketHandler {
 
-    private final UserService userService;
     private final GameService gameService;
     private final AuthService authService;
 
-    public WebSocketHandler(UserService userService, GameService gameService, AuthService authService) {
-        this.userService = userService;
+    public WebSocketHandler(GameService gameService, AuthService authService) {
         this.gameService = gameService;
         this.authService = authService;
     }
@@ -37,33 +34,14 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) {
         UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
-        switch (command.getCommandType()) {
-            case RESIGN -> resign(command.getAuthToken(), command.getGameID());
-            case LEAVE -> leave(command.getAuthToken(), command.getGameID());
-            case CONNECT -> connect(command.getAuthToken(), command.getGameID(), session,
-                    ((ConnectCommand)command).getColor());
-            case MAKE_MOVE -> makeMove(command.getAuthToken(), command.getGameID(),
-                    ((MakeMoveCommand)command).getMove());
-        }
-    }
-
-    private void resign(String authToken, int gameID) {
-        /* verify and obtain userName from authToken
-        verify gameID
-        Server marks the game as over (no more moves can be made). Game is updated in the database.
-        Server sends a Notification message to all clients in that game informing them that the root client resigned.
-        This applies to both players and observers.
-         */
+        String authToken = command.getAuthToken();
         try {
-            String userName = authService.getUserName(authToken);
-            if (gameID == 0) {
-                throw new DataAccessException("Error. Provide a correct gameID.");
+            switch (command.getCommandType()) {
+                case RESIGN -> resign(authToken, command.getGameID());
+                case LEAVE -> leave(authToken, command.getGameID());
+                case CONNECT -> connect(authToken, command.getGameID(), session, ((ConnectCommand) command).getColor());
+                case MAKE_MOVE -> makeMove(authToken, command.getGameID(), ((MakeMoveCommand) command).getMove());
             }
-            gameService.endGame(authToken, gameID); //test to see if it works
-            connections.sendToAllButRootClient(authToken, new NotificationMessage
-                    (String.format("%s resigned. Good game.", userName)));
-            connections.sendToAllButRootClient(authToken, new NotificationMessage
-                    (String.format("%s resigned. Good game.", userName)));
         } catch (DataAccessException | ServiceException e) {
             try {
                 connections.sendToRootClient(authToken, new ErrorMessage(e.getMessage()));
@@ -76,69 +54,68 @@ public class WebSocketHandler {
         }
     }
 
-    private void leave(String authToken, int gameID) {
+    private void resign(String authToken, int gameID) throws DataAccessException, ServiceException, IOException {
+        /* verify and obtain userName from authToken
+        verify gameID
+        Server marks the game as over (no more moves can be made). Game is updated in the database.
+        Server sends a Notification message to all clients in that game informing them that the root client resigned.
+        This applies to both players and observers.
+         */
+        String userName = authService.getUserName(authToken);
+        if (gameID == 0) {
+            throw new DataAccessException("Error. Provide a correct gameID.");
+        }
+        gameService.endGame(authToken, gameID); //test to see if it works
+        connections.sendToAllButRootClient(authToken, new NotificationMessage
+                (String.format("%s resigned. Good game.", userName)));
+        connections.sendToAllButRootClient(authToken, new NotificationMessage
+                (String.format("%s resigned. Good game.", userName)));
+    }
+
+    private void leave(String authToken, int gameID) throws DataAccessException, ServiceException, IOException {
         /* verify and obtain userName from authToken
         verify gameID
         If a player is leaving, then the game is updated to remove the root client. Game is updated in the database.
         Server sends a Notification message to all other clients in that game informing them that the root client left.
         This applies to both players and observers.
          */
-        try {
-            String userName = authService.getUserName(authToken);
-            if (gameID == 0) {
-                throw new DataAccessException("Error. Provide a correct gameID.");
-            }
-            gameService.leaveGame(authToken, gameID);
-            connections.sendToAllButRootClient(authToken, new NotificationMessage
-                    (String.format("%s left the game.", userName)));
-            connections.remove(authToken);
-        } catch (DataAccessException | ServiceException e) {
-            try {
-                connections.sendToRootClient(authToken, new ErrorMessage(e.getMessage()));
-            } catch (IOException ex) {
-                throw new RuntimeException(ex); //Todo: where to handle IOException?
-            }
-        } catch (IOException ex) {
-            throw new RuntimeException(ex); //Todo: where to handle IOException?
+        String userName = authService.getUserName(authToken);
+        if (gameID == 0) {
+            throw new DataAccessException("Error. Provide a correct gameID.");
         }
+        gameService.leaveGame(authToken, gameID);
+        connections.sendToAllButRootClient(authToken, new NotificationMessage
+                (String.format("%s left the game.", userName)));
+        connections.remove(authToken);
     }
 
-    private void connect(String authToken, int gameID, Session session, ChessGame.TeamColor color) {
+    private void connect(String authToken, int gameID, Session session, ChessGame.TeamColor color)
+            throws DataAccessException, ServiceException, IOException {
         //verify and obtain userName from authToken
         //verify gameID
         //Server sends a LOAD_GAME message back to the root client.
         //Server sends a Notification message to all other clients
         //in that game informing them the root client connected to the game,
         //either as a player (in which case their color must be specified) or as an observer.
-        try {
-            connections.add(authToken, session);
-            String colorName;
-            switch (color) {
-                case WHITE -> colorName = "White";
-                case BLACK -> colorName = "Black";
-                case null -> colorName = "Observer";
-            }
-            String userName = authService.getUserName(authToken);
-            if (gameID == 0) {
-                throw new DataAccessException("Error. Provide a correct gameID.");
-            }
-            DrawBoardResult game = gameService.drawBoard(new DrawBoardRequest(authToken, gameID));
-            connections.sendToRootClient(authToken, new LoadGameMessage(game.gameData().game()));
-            connections.sendToAllButRootClient(authToken, new NotificationMessage(String.format
-                    ("%s joined the game as %s.", userName, colorName)));
-
-        } catch (DataAccessException | ServiceException e) {
-            try {
-                connections.sendToRootClient(authToken, new ErrorMessage(e.getMessage()));
-            } catch (IOException ex) {
-                throw new RuntimeException(ex); //Todo: where to handle IOException?
-            }
-        } catch (IOException ex) {
-            throw new RuntimeException(ex); //Todo: where to handle IOException?
+        connections.add(authToken, session);
+        String colorName;
+        switch (color) {
+            case WHITE -> colorName = "White";
+            case BLACK -> colorName = "Black";
+            case null -> colorName = "Observer";
         }
+        String userName = authService.getUserName(authToken);
+        if (gameID == 0) {
+            throw new DataAccessException("Error. Provide a correct gameID.");
+        }
+        DrawBoardResult game = gameService.drawBoard(new DrawBoardRequest(authToken, gameID));
+        connections.sendToRootClient(authToken, new LoadGameMessage(game.gameData().game()));
+        connections.sendToAllButRootClient(authToken, new NotificationMessage(String.format
+                ("%s joined the game as %s.", userName, colorName)));
     }
 
-    private void makeMove(String authToken, int gameID, ChessMove move) {
+    private void makeMove(String authToken, int gameID, ChessMove move)
+            throws DataAccessException, ServiceException, IOException{
         /* verify authToken and obtain userName
         verify gameID
         Server verifies the validity of the move.
@@ -192,14 +169,8 @@ public class WebSocketHandler {
                             " Game over."));
                 }
             }
-        } catch (DataAccessException | ServiceException | InvalidMoveException e) {
-            try {
-                connections.sendToRootClient(authToken, new ErrorMessage(e.getMessage()));
-            } catch (IOException ex) {
-                throw new RuntimeException(ex); //Todo: where to handle IOException?
-            }
-        }  catch (IOException ex) {
-            throw new RuntimeException(ex); //Todo: where to handle IOException?
+        } catch (InvalidMoveException e) {
+            throw new DataAccessException(e.getMessage());
         }
     }
 }
