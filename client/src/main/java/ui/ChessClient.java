@@ -57,7 +57,7 @@ public class ChessClient {
                     case "redraw_board" -> redrawChessBoard(game.getBoard());
                     case "leave" -> leave();
                     case "make_move" -> makeMove(params);
-                    case "resign" -> resign(); //require confirmation
+                    case "resign" -> resign();
                     case "highlight_moves" -> highlightMoves(game, params);
                     default -> help();
                 };
@@ -157,7 +157,7 @@ public class ChessClient {
                 userGameID = actualGameID;
                 userColor = color;
                 ws = new WebSocketFacade(serverUrl, notificationHandler);
-                ws.connect(authToken, actualGameID);
+                ws.connect(authToken, actualGameID, color);
                 return String.format("Successfully joined game %s as %s", params[0], params[1]);
             } catch (NumberFormatException e) {
                 throw new ResponseException(401, "Error: provide a number for the gameID.");
@@ -193,7 +193,8 @@ public class ChessClient {
                     throw new ResponseException(401, "Error: game not found. Provide a new ID.");
                 }
                 ws = new WebSocketFacade(serverUrl, notificationHandler);
-                ws.connect(authToken, actualGameID);
+                ws.connect(authToken, actualGameID, null);
+                state = State.IN_GAME;
                 userGameID = actualGameID;
                 userColor = null;
                 return String.format("Successfully joined game %s as observer.", niceGameID);
@@ -237,7 +238,7 @@ public class ChessClient {
     }
 
     public String resign() throws ResponseException {
-        if (authToken != null && userGameID != 0) { //remember to confirm
+        if (authToken != null && userGameID != 0) {
             System.out.print("\nAre you sure you want to resign? (Type Y to confirm, or anything else to cancel.)\n");
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
@@ -298,7 +299,7 @@ public class ChessClient {
                 ws.makeMove(authToken, userGameID, chessMove);
             } else {
                 throw new ResponseException(500, "Internal WebSocket error. Try again.");
-            } //Todo: how to notify?
+            }
             return String.format("Made move %s.", move);
         } else if (params.length != 1) {
             throw new ResponseException(401, "Expected: <chess_move>");

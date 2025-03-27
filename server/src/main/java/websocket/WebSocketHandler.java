@@ -74,6 +74,10 @@ public class WebSocketHandler {
         if (gameService.isOver(authToken, gameID)) {
             throw new DataAccessException("Error: game has already ended.");
         }
+        GameData gameData = gameService.drawBoard(new DrawBoardRequest(authToken, gameID)).gameData();
+        if ((!gameData.whiteUsername().equals(userName)) && (!gameData.blackUsername().equals(userName))) {
+            throw new DataAccessException("Error: you cannot resign as an observer.");
+        }
         gameService.endGame(authToken, gameID);
         connections.sendToAllButRootClient(authToken, new NotificationMessage
                 (String.format("%s resigned. Good game.", userName)));
@@ -142,6 +146,9 @@ public class WebSocketHandler {
                 throw new DataAccessException("Error: game has already ended.");
             } else {
                 GameData gameData = gameService.drawBoard(new DrawBoardRequest(authToken, gameID)).gameData();
+                if ((!gameData.whiteUsername().equals(userName)) && (!gameData.blackUsername().equals(userName))) {
+                    throw new DataAccessException("Error: you cannot make a move as an observer.");
+                }
                 gameData.game().makeMove(move);
                 gameService.updateGame(authToken, gameData);
                 //updatedGameData is to check to make sure the board successfully updated in the database

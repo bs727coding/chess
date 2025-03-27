@@ -39,9 +39,9 @@ public class ServerFacade {
                 createGameRequest, CreateGameResult.class);
     }
 
-    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws ResponseException {
+    public void joinGame(JoinGameRequest joinGameRequest) throws ResponseException {
         var path = "/game";
-        return ClientCommunicator.makeRequest(serverUrl, "PUT", path, joinGameRequest.authToken(),
+        ClientCommunicator.makeRequest(serverUrl, "PUT", path, joinGameRequest.authToken(),
                 joinGameRequest, JoinGameResult.class);
     }
 }
