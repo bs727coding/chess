@@ -253,7 +253,7 @@ public class ChessClient {
             System.out.print("\nAre you sure you want to resign? (Type Y to confirm, or anything else to cancel.)");
             Scanner scanner = new Scanner(System.in);
             String line = scanner.nextLine();
-            scanner.close();
+            //scanner.close();
             if (line.equals("Y") || line.equals("y")) {
                 if (ws != null) {
                     ws.resign(authToken, userGameID);
@@ -292,11 +292,6 @@ public class ChessClient {
         }
         char rowLetter = Character.toLowerCase(position.charAt(0));
         int col = Character.getNumericValue(position.charAt(1));
-        if (rowLetter != ('a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h')) {
-            throw new ResponseException(401, "Error: first value must be a letter from a-h.");
-        } else if (col < 0 || col > 8) {
-            throw new ResponseException(401, "Error: second value must be a number from 1-8.");
-        }
         int row = letterToNumber(rowLetter);
         return new ChessPosition(row, col);
     }
@@ -329,10 +324,10 @@ public class ChessClient {
     private static ChessPiece.PieceType getPromotionPiece(String piece) throws ResponseException {
         if (piece.length() == 1) {
             return switch (piece.charAt(0)) {
-                case 'Q' -> ChessPiece.PieceType.QUEEN;
-                case 'R' -> ChessPiece.PieceType.ROOK;
-                case 'N' -> ChessPiece.PieceType.KNIGHT;
-                case 'B' -> ChessPiece.PieceType.BISHOP;
+                case 'q' -> ChessPiece.PieceType.QUEEN;
+                case 'r' -> ChessPiece.PieceType.ROOK;
+                case 'n' -> ChessPiece.PieceType.KNIGHT;
+                case 'b' -> ChessPiece.PieceType.BISHOP;
                 default -> throw new ResponseException(403, "Error: invalid promotion piece formatting.");
             };
         } else {
@@ -341,7 +336,7 @@ public class ChessClient {
     }
 
     private static ChessMove getChessMove(String move) throws ResponseException {
-        Pattern movePattern = Pattern.compile("([a-h][1-8])([a-h][1-8])([QRBN])?");
+        Pattern movePattern = Pattern.compile("^([a-h][1-8])([a-h][1-8])([qrbn])?$");
         Matcher matcher = movePattern.matcher(move);
         if (matcher.matches()) {
             ChessPosition startPosition = getChessPosition(matcher.group(1));

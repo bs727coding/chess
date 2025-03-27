@@ -37,9 +37,14 @@ public class WebSocketHandler {
         String authToken = command.getAuthToken();
         try {
             switch (command.getCommandType()) {
-                case RESIGN -> resign(authToken, command.getGameID());
+                case RESIGN -> {
+                    resign(authToken, command.getGameID());
+                }
                 case LEAVE -> leave(authToken, command.getGameID());
-                case CONNECT -> connect(authToken, command.getGameID(), session, ((ConnectCommand) command).getColor());
+                case CONNECT -> {
+                    ConnectCommand connectCommand = new Gson().fromJson(message, ConnectCommand.class);
+                    connect(authToken, command.getGameID(), session, connectCommand.getColor());
+                }
                 case MAKE_MOVE -> makeMove(authToken, command.getGameID(), ((MakeMoveCommand) command).getMove());
             }
         } catch (DataAccessException | ServiceException e) {
