@@ -157,6 +157,8 @@ public class WebSocketHandler {
                 connections.sendToAllButRootClient(authToken, new LoadGameMessage(updatedGameData.game()));
                 connections.sendToAllButRootClient(authToken, new NotificationMessage(String.format(
                         "%s made the move %s.", userName, move)));
+                connections.sendToRootClient(authToken, new NotificationMessage(String.format
+                        ("Successfully made the move %s.", move)));
                 if (updatedGameData.game().isInCheck(ChessGame.TeamColor.WHITE)) {
                     connections.sendToAllButRootClient(authToken, new NotificationMessage("White is in check."));
                     connections.sendToRootClient(authToken, new NotificationMessage("White is in check."));

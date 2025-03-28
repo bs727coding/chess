@@ -280,7 +280,7 @@ public class ChessClient {
         char rowLetter = Character.toLowerCase(position.charAt(0));
         int col = Character.getNumericValue(position.charAt(1));
         int row = letterToNumber(rowLetter);
-        return new ChessPosition(row, col);
+        return new ChessPosition(col, row);
     }
 
     private static int letterToNumber(char letter) throws ResponseException {
@@ -300,7 +300,7 @@ public class ChessClient {
             } else {
                 throw new ResponseException(500, "Internal WebSocket error. Try again.");
             }
-            return String.format("Made move %s.", move);
+            return "";
         } else if (params.length != 1) {
             throw new ResponseException(401, "Expected: <chess_move>");
         } else {
@@ -328,8 +328,13 @@ public class ChessClient {
         if (matcher.matches()) {
             ChessPosition startPosition = getChessPosition(matcher.group(1));
             ChessPosition endPosition = getChessPosition(matcher.group(2));
-            ChessPiece.PieceType promotionPiece = getPromotionPiece(matcher.group(3));
-            return new ChessMove(startPosition, endPosition, promotionPiece);
+            String pieceLetter = matcher.group(3);
+            if (pieceLetter != null) {
+                ChessPiece.PieceType promotionPiece = getPromotionPiece(pieceLetter);
+                return new ChessMove(startPosition, endPosition, promotionPiece);
+            } else {
+                return new ChessMove(startPosition, endPosition, null);
+            }
         } else {
             throw new ResponseException(402, "Error: invalid move format. Move must be formatted thus: start_position," +
                     " end_position, promotion_piece (optional)");
