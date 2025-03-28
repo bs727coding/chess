@@ -142,7 +142,6 @@ public class WebSocketHandler {
                 throw new DataAccessException("Error. Provide a correct gameID.");
             }
             //check to see if game is over before making move
-            if(gameService)
             if (gameService.isOver(authToken, gameID)) {
                 throw new DataAccessException("Error: game has already ended.");
             } else {
@@ -152,21 +151,29 @@ public class WebSocketHandler {
                 }
                 gameData.game().makeMove(move);
                 gameService.updateGame(authToken, gameData);
-                //updatedGameData is to check to make sure the board successfully updated in the database
-                GameData updatedGameData = gameService.drawBoard(new DrawBoardRequest(authToken, gameID)).gameData();
-                connections.sendToRootClient(authToken, new LoadGameMessage(updatedGameData.game()));
-                connections.sendToAllButRootClient(authToken, new LoadGameMessage(updatedGameData.game()));
+                connections.sendToRootClient(authToken, new LoadGameMessage(gameData.game()));
+                connections.sendToAllButRootClient(authToken, new LoadGameMessage(gameData.game()));
                 connections.sendToAllButRootClient(authToken, new NotificationMessage(String.format(
                         "%s made the move %s.", userName, move)));
                 connections.sendToRootClient(authToken, new NotificationMessage(String.format
                         ("Successfully made the move %s.", move)));
-                if (updatedGameData.game().isInCheck(ChessGame.TeamColor.WHITE)) {
+                if (gameService.isInCheckmate(authToken, gameID)) {
+                    connections.sendToRootClient(authToken,
+                            new NotificationMessage(String.format("%s is in checkmate. Good game.", userName)));
+                    connections.sendToAllButRootClient(authToken,
+                            new NotificationMessage(String.format("%s is in checkmate. Good game.", userName)));
+                } else if (gameService.isInStalemate(authToken, gameID)) {
+                    connections.sendToRootClient(authToken,
+                            new NotificationMessage(String.format("%s is in stalemate. Game over.", userName)));
+                    connections.sendToAllButRootClient(authToken,
+                            new NotificationMessage(String.format("%s is in stalemate. Game over.", userName)));
+                } else if (gameData.game().isInCheck(ChessGame.TeamColor.WHITE)) {
                     connections.sendToAllButRootClient(authToken, new NotificationMessage("White is in check."));
                     connections.sendToRootClient(authToken, new NotificationMessage("White is in check."));
-                } else if (updatedGameData.game().isInCheck(ChessGame.TeamColor.BLACK)) {
+                } else if (gameData.game().isInCheck(ChessGame.TeamColor.BLACK)) {
                     connections.sendToAllButRootClient(authToken, new NotificationMessage("Black is in check."));
                     connections.sendToRootClient(authToken, new NotificationMessage("Black is in check."));
-                } else if (updatedGameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
+                }  /*else if (updatedGameData.game().isInCheckmate(ChessGame.TeamColor.WHITE)) {
                     connections.sendToAllButRootClient(authToken, new NotificationMessage("White is in checkmate. " +
                             "Good game."));
                     connections.sendToRootClient(authToken, new NotificationMessage("White is in checkmate." +
@@ -186,7 +193,7 @@ public class WebSocketHandler {
                             "Game over."));
                     connections.sendToRootClient(authToken, new NotificationMessage("Black is in stalemate." +
                             " Game over."));
-                }
+                }*/
             }
         } catch (InvalidMoveException e) {
             throw new DataAccessException(e.getMessage());

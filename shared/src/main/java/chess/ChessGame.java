@@ -450,15 +450,16 @@ public class ChessGame {
     }
 
     public boolean isInCheckmate(TeamColor teamColor) {
-        if (isInCheck(teamColor) && hasAvailableMoves(teamColor)) {
-            endGame();
-            return true;
-        } else {
-            return false;
+        if (isInCheck(teamColor)) {
+            if (hasNoAvailableMoves(teamColor)) {
+                endGame();
+                return true;
+            }
         }
+        return false;
     }
 
-    private boolean hasAvailableMoves(TeamColor teamColor) {
+    private boolean hasNoAvailableMoves(TeamColor teamColor) {
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
                 ChessPosition position = new ChessPosition(i, j);
@@ -474,7 +475,7 @@ public class ChessGame {
     }
 
     public boolean isInStalemate(TeamColor teamColor) {
-        if (!isInCheck(teamColor) && hasAvailableMoves(teamColor)) {
+        if (!isInCheck(teamColor) && hasNoAvailableMoves(teamColor)) {
             endGame();
             return true;
         } else {

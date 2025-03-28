@@ -40,9 +40,20 @@ public class DrawBoard {
     }
 
     public void highlight(PrintStream out, Collection<ChessMove> moves, ChessGame.TeamColor color) {
-        //ToDo: implement. Draws the board from the correct perspective but
-        // highlights every square that is included in the array
-        out.println("successfully called highlight board. This is under development.");
+        if (color == null || color == ChessGame.TeamColor.WHITE) {
+            drawWhiteHeader(out);
+            for (int i = 8; i > 0; i--) {
+                drawWhiteRowHighlightedGivenNumber(out, i, moves);
+            }
+            drawWhiteHeader(out);
+        } else {
+            drawBlackHeader(out);
+            for (int i = 1; i < 9; i++) {
+                drawBlackRowHighlightedGivenNumber(out, i, moves);
+            }
+            drawWhiteHeader(out);
+        }
+        out.print(RESET_BG_COLOR);
     }
 
     private void drawBoardWhite(PrintStream out) {
@@ -74,6 +85,32 @@ public class DrawBoard {
         out.println();
     }
 
+    private void drawWhiteRowHighlightedGivenNumber(PrintStream out, int row, Collection<ChessMove> moves) {
+        //even rows start with white square
+        drawNumber(out, row);
+        for (int i = 1; i < 9; i++) {
+            drawInnerHighlightedRow(out, row, i, moves);
+        }
+        out.print(SET_BG_COLOR_BLUE);
+        out.print(SET_TEXT_COLOR_WHITE);
+        drawNumber(out, row);
+        out.print(RESET_BG_COLOR);
+        out.println();
+    }
+
+    private void drawBlackRowHighlightedGivenNumber(PrintStream out, int row, Collection<ChessMove> moves) {
+        //odd rows start with white square
+        drawNumber(out, row);
+        for (int i = 8; i > 0; i--) {
+            drawInnerHighlightedRow(out, row, i, moves);
+        }
+        out.print(SET_BG_COLOR_BLUE);
+        out.print(SET_TEXT_COLOR_WHITE);
+        drawNumber(out, row);
+        out.print(RESET_BG_COLOR);
+        out.println();
+    }
+
     private void drawBlackRowGivenNumber(PrintStream out, int row) {
         //odd rows start with white square
         drawNumber(out, row);
@@ -87,6 +124,27 @@ public class DrawBoard {
         out.println();
     }
 
+    private void drawInnerHighlightedRow(PrintStream out, int row, int i, Collection<ChessMove> moves) {
+        boolean highlighted = false;
+        for (ChessMove move : moves) {
+            if (move.getEndPosition().equals(new ChessPosition(row, i))) {
+                out.print(SET_BG_COLOR_YELLOW);
+                highlighted = true;
+                findChessPiece(out, row, i, true);
+            }
+        }
+        if (!highlighted) {
+            if ((i + row) % 2 == 0) { //even column
+                out.print(SET_BG_COLOR_DARK_GREY);
+                boardColor = false;
+            } else {
+                out.print(SET_BG_COLOR_LIGHT_GREY);
+                boardColor = true;
+            }
+            findChessPiece(out, row, i, false);
+        }
+    }
+
     private void drawInnerRow(PrintStream out, int row, int i) {
         if ((i + row) % 2 == 0) { //even column
             out.print(SET_BG_COLOR_DARK_GREY);
@@ -95,7 +153,7 @@ public class DrawBoard {
             out.print(SET_BG_COLOR_LIGHT_GREY);
             boardColor = true;
         }
-        findChessPiece(out, row, i);
+        findChessPiece(out, row, i, false);
     }
 
     private static void drawWhiteHeader(PrintStream out) {
@@ -120,21 +178,23 @@ public class DrawBoard {
         out.println();
     }
 
-    private void findChessPiece(PrintStream out, int row, int col) {
+    private void findChessPiece(PrintStream out, int row, int col, boolean highlighted) {
         //locate chessPiece at given coordinate and pass it into drawChessPiece
-        drawChessPiece(out, board.getPiece(new ChessPosition(row, col)));
+        drawChessPiece(out, board.getPiece(new ChessPosition(row, col)), highlighted);
     }
 
-    private void drawChessPiece(PrintStream out, ChessPiece piece) {
-        if (piece == null) {
+    private void drawChessPiece(PrintStream out, ChessPiece piece, boolean highlighted) {
+        if (highlighted && piece == null) {
+            out.print(SET_TEXT_COLOR_YELLOW);
+            out.print(BLACK_KNIGHT);
+        } else if (piece == null) {
             if (boardColor) {
                 out.print(SET_TEXT_COLOR_LIGHT_GREY);
             } else {
                 out.print(SET_TEXT_COLOR_DARK_GREY);
             }
             out.print(BLACK_KNIGHT);
-        }
-        else {
+        } else {
             if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
                 out.print(SET_TEXT_COLOR_GREEN);
             } else { //Black
