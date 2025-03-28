@@ -450,8 +450,9 @@ public class ChessGame {
     }
 
     public boolean isInCheckmate(TeamColor teamColor) {
-        if (isInCheck(teamColor)) {
-            return hasAvailableMoves(teamColor);
+        if (isInCheck(teamColor) && hasAvailableMoves(teamColor)) {
+            endGame();
+            return true;
         } else {
             return false;
         }
@@ -473,8 +474,9 @@ public class ChessGame {
     }
 
     public boolean isInStalemate(TeamColor teamColor) {
-        if (!isInCheck(teamColor)) {
-            return hasAvailableMoves(teamColor);
+        if (!isInCheck(teamColor) && hasAvailableMoves(teamColor)) {
+            endGame();
+            return true;
         } else {
             return false;
         }

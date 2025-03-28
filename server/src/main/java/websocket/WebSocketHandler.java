@@ -142,6 +142,7 @@ public class WebSocketHandler {
                 throw new DataAccessException("Error. Provide a correct gameID.");
             }
             //check to see if game is over before making move
+            if(gameService)
             if (gameService.isOver(authToken, gameID)) {
                 throw new DataAccessException("Error: game has already ended.");
             } else {

@@ -76,7 +76,7 @@ public class GameService {
         } else if (userName.equals(gameData.blackUsername())) {
             color = ChessGame.TeamColor.BLACK;
         } else {
-            return; //this would be a good place to debug to check if this happens with observers
+            return;
         }
         GameData updatedGameData;
         if (color == ChessGame.TeamColor.WHITE) {
@@ -119,6 +119,42 @@ public class GameService {
 
     public void clear() {
         gameDAO.clearGameData();
+    }
+
+    public boolean isInCheckmate(String authToken, int gameID) throws DataAccessException, ServiceException {
+        if (gameID == 0 || authToken == null) {
+            throw new ServiceException("Error: bad request");
+        }
+        String userName = authDAO.getAuth(authToken).username();
+        GameData gameData = gameDAO.getGameData(gameID);
+        ChessGame.TeamColor color;
+        if (userName.equals(gameData.whiteUsername())) {
+            color = ChessGame.TeamColor.WHITE;
+            return gameDAO.getGameData(gameID).game().isInCheckmate(color);
+        } else if (userName.equals(gameData.blackUsername())) {
+            color = ChessGame.TeamColor.BLACK;
+            return gameDAO.getGameData(gameID).game().isInCheckmate(color);
+        } else {
+            throw new DataAccessException("Error: player color not found when determining checkmate.");
+        }
+    }
+
+    public boolean isInStalemate(String authToken, int gameID) throws DataAccessException, ServiceException {
+        if (gameID == 0 || authToken == null) {
+            throw new ServiceException("Error: bad request");
+        }
+        String userName = authDAO.getAuth(authToken).username();
+        GameData gameData = gameDAO.getGameData(gameID);
+        ChessGame.TeamColor color;
+        if (userName.equals(gameData.whiteUsername())) {
+            color = ChessGame.TeamColor.WHITE;
+            return gameDAO.getGameData(gameID).game().isInStalemate(color);
+        } else if (userName.equals(gameData.blackUsername())) {
+            color = ChessGame.TeamColor.BLACK;
+            return gameDAO.getGameData(gameID).game().isInStalemate(color);
+        } else {
+            throw new DataAccessException("Error: player color not found when determining stalemate.");
+        }
     }
 
     public boolean isOver(String authToken, int gameID) throws DataAccessException, ServiceException {
