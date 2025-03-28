@@ -134,14 +134,7 @@ public class DrawBoard {
             }
         }
         if (!highlighted) {
-            if ((i + row) % 2 == 0) { //even column
-                out.print(SET_BG_COLOR_DARK_GREY);
-                boardColor = false;
-            } else {
-                out.print(SET_BG_COLOR_LIGHT_GREY);
-                boardColor = true;
-            }
-            findChessPiece(out, row, i, false);
+            drawInnerRow(out, row, i);
         }
     }
 

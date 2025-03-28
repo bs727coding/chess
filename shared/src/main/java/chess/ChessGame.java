@@ -219,8 +219,7 @@ public class ChessGame {
                         moveWorks = isMoveWorksBlack(moveWorks, i);
                     }
                     if (moveWorks) {
-                        validMoves.add(new ChessMove(startPosition, new ChessPosition(8, 7),
-                                null));
+                        validMoves.add(new ChessMove(startPosition, new ChessPosition(8, 7), null));
                     }
                 }
             }
