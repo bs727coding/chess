@@ -3,7 +3,6 @@ package websocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
-import chess.ChessPiece;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
@@ -150,7 +149,6 @@ public class WebSocketHandler {
             //check to see if game is over before making move
             if (gameService.isOver(authToken, gameID)) {
                 connections.sendToRootClient(authToken, new ErrorMessage("Error: game is already over."));
-                return;
             } else {
                 GameData gameData = gameService.drawBoard(new DrawBoardRequest(authToken, gameID)).gameData();
                 ChessGame.TeamColor playerColor;
