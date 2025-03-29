@@ -124,6 +124,8 @@ public class ChessClient {
 
     public String listGames() throws ResponseException {
         if (authToken != null) {
+            gameIDMap.clear();
+
             ArrayList<GameInformation> result = server.listGames(new ListGamesRequest(authToken)).games();
             StringBuilder sb = new StringBuilder();
             for (GameInformation game : result) {
