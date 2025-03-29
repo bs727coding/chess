@@ -50,7 +50,8 @@ public class WebSocketHandler {
             }
         } catch (DataAccessException | ServiceException e) {
             try {
-                connections.sendToRootClient(authToken, new ErrorMessage(e.getMessage()));
+                //connections.sendToRootClient(authToken, new ErrorMessage(e.getMessage()));
+                session.getRemote().sendString(new Gson().toJson(new ErrorMessage(e.getMessage())));
             } catch (IOException ex) {
                 throw new RuntimeException(ex); //Todo: where to handle IOException?
             }
