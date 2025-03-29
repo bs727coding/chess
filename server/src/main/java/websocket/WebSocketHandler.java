@@ -140,8 +140,7 @@ public class WebSocketHandler {
         try {
             String userName = authService.getUserName(authToken);
             if (userName == null) {
-                connections.sendToRootClient(authToken, new ErrorMessage("Error: unauthorized."));
-                return;
+                throw new DataAccessException("Error: unauthorized.");
             }
             if (gameID == 0) {
                 connections.sendToRootClient(authToken, new ErrorMessage("Error: provide a correct gameID."));
