@@ -110,7 +110,7 @@ public class WebSocketHandler {
         //Server sends a Notification message to all other clients
         //in that game informing them the root client connected to the game,
         //either as a player (in which case their color must be specified) or as an observer.
-        connections.add(authToken, session);
+        connections.add(authToken, session, gameID);
         String colorName;
         switch (color) {
             case WHITE -> colorName = "White";
