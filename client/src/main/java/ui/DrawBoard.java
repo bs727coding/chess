@@ -51,7 +51,7 @@ public class DrawBoard {
             for (int i = 1; i < 9; i++) {
                 drawBlackRowHighlightedGivenNumber(out, i, moves);
             }
-            drawWhiteHeader(out);
+            drawBlackHeader(out);
         }
         out.print(RESET_BG_COLOR);
     }

@@ -264,6 +264,10 @@ public class ChessClient {
             String position = params[0];
             ChessPosition chessPosition = getChessPosition(position);
             DrawBoard drawBoard = new DrawBoard(game.getBoard());
+            if (game.getBoard().getPiece(chessPosition) == null) {
+                drawBoard.drawBoard(System.out, userColor);
+                return String.format("No piece found for position %s.", position);
+            }
             drawBoard.highlight(System.out, game.validMoves(chessPosition), userColor);
             return String.format("Successfully highlighted moves for position %s.", position);
         } else if (params.length != 1) {

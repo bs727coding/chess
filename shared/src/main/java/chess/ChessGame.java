@@ -64,7 +64,9 @@ public class ChessGame {
             validMoves.remove(invalidMove);
         }
         castle(startPosition, piece, validMoves);
-        validMoves.addAll(enPassantAvailability(startPosition, piece));
+        if(!piece.justDoubleMoved()) {
+            validMoves.addAll(enPassantAvailability(startPosition, piece));
+        }
         Collection<ChessMove> nowInvalidMoves = new ArrayList<>();
         for (ChessMove enPassantMove : validMoves) {
             if (isEnPassantMove(enPassantMove) && !board.getPiece(lastMove.getEndPosition()).justDoubleMoved()) {
@@ -139,6 +141,9 @@ public class ChessGame {
     }
 
     private Collection<ChessMove> getWhiteEnPassantMoves(ChessPosition startPosition, Collection<ChessMove> moveList) {
+        if(startPosition.getRow() != 5) {
+            return new ArrayList<>();
+        }
         if (startPosition.getColumn() == 1) {
             if (board.getPiece(new ChessPosition(5, 2)) != null) {
                 ChessPiece oppositePiece = board.getPiece(new ChessPosition(5, 2));
