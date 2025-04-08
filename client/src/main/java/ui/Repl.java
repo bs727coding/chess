@@ -20,9 +20,10 @@ public class Repl implements NotificationHandler {
     }
 
     public static void main(String[] args) {
+        var serverName = args.length > 0 ? args[0] : "http://localhost:8080";
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
         out.print(ERASE_SCREEN);
-        Repl repl = new Repl("http://localhost:8080");
+        Repl repl = new Repl(serverName);
         repl.run(out);
     }
 
